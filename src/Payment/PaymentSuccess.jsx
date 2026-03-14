@@ -1,141 +1,160 @@
-import { Alert, AlertTitle, CircularProgress, Grid } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  CircularProgress,
+  Box,
+  Typography,
+  Button,
+  Paper,
+} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
+
 import { useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getBookingsBy_Id,getAllBookings} from "../state/booking/Action";
-import { updateBookingPayment } from "../state/Payment/Action";
+import { getBookingsBy_Id } from "../state/booking/Action";
+import socketIOClient from "socket.io-client";
 
 const PaymentSuccess = () => {
-
-  const [searchParams] = useSearchParams();
+  const { bookingId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const paymentId = searchParams.get("razorpay_payment_id");
-  const paymentStatus = searchParams.get("razorpay_payment_link_status");
+  const { booking, loading, error } = useSelector(
+    (state) => state.bookings
+  );
 
+  /* =========================
+     FETCH ONCE
+  ========================= */
+  useEffect(() => {
+    if (!bookingId) return;
+    dispatch(getBookingsBy_Id(bookingId));
+  }, [dispatch, bookingId]);
 
-  const { payment} = useSelector((store) => store);
-  console.log("paymetn",payment);
+  /* =========================
+     SOCKET REAL-TIME UPDATE
+  ========================= */
+  useEffect(() => {
+    const socket = socketIOClient(
+      process.env.REACT_APP_BACKEND_URL
+    );
 
+    socket.on("paymentSuccess", (data) => {
+      if (data.bookingId === bookingId) {
+        dispatch(getBookingsBy_Id(bookingId));
+      }
+    });
 
-  const { bookings } = useSelector((store) => store);
-  const booking = bookings.booking;
-  const { loading, error } = bookings;
+    return () => socket.disconnect();
+  }, [bookingId, dispatch]);
 
-  console.log("bookingss",booking)
+  /* =========================
+     UI STATES
+  ========================= */
 
-const { bookingId } = useParams();
-
-useEffect(() => {
-  if (paymentId && bookingId && paymentStatus === "paid") {
-    dispatch(updateBookingPayment({ payment_id: paymentId, booking_id: bookingId }));
-   
-  }
-   dispatch(getBookingsBy_Id(bookingId));
-   dispatch(getAllBookings());
-}, [ dispatch, paymentId, paymentStatus, bookingId]);
-
-
-
-  if (loading) {
+  if (loading && !booking) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <CircularProgress />
-      </div>
+      <Box sx={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <CircularProgress size={60} />
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Alert severity="error">Error: {error}</Alert>
-      </div>
+      <Box sx={{ p: 4 }}>
+        <Alert severity="error" variant="filled">
+          <AlertTitle>Error</AlertTitle>
+          Payment verification failed.
+        </Alert>
+      </Box>
     );
   }
 
-  if (!booking) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>No booking found.</p>
-      </div>
-    );
-  }
-
-  const listing = booking?.listing || {};
-
-  const host = booking?.host || {}; 
+  if (!booking) return null;
 
   return (
-    <div className="px-2 lg:px-36">
-      <div className="flex flex-col justify-center items-center">
-        <Alert variant="filled" severity="success" sx={{ mb: 6 }}>
-          <AlertTitle>Payment Success</AlertTitle>
-          Your booking was placed successfully.
-        </Alert>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg,#eef2ff,#f5f3ff)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        p: 2,
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          width: "100%",
+          maxWidth: 500,
+          p: 4,
+          borderRadius: 4,
+          textAlign: "center",
+        }}
+      >
+        {booking.isPaid && (
+          <>
+            <CheckCircleIcon sx={{ fontSize: 70, color: "green", mb: 2 }} />
+            <Typography variant="h5" fontWeight="bold">
+              Payment Successful 🎉
+            </Typography>
+            <Typography sx={{ mt: 1, mb: 3 }}>
+              Your booking has been confirmed.
+            </Typography>
 
-        <Grid container spacing={4}>
-          {/* Booking Overview */}
-          <Grid item xs={12} className="shadow-md hover:shadow-2xl p-4">
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={8}>
-                <div className="flex items-center gap-4">
-                  <img
-                    src={listing.images?.[0] || "https://via.placeholder.com/150"}
-                    alt="Listing"
-                    className="w-20 h-20 object-cover object-top"
-                  />
-                  <div className="space-y-1">
-                    <p className="font-semibold text-xl">{listing.title || "No Title"}</p>
-                    <p className="text-sm opacity-70">Location:<span className="font-medium"> {listing.city}, {listing.country}</span> {listing.address}</p>
-                    <div className="flex gap-4">
-                      <p className="text-sm">Check-in: {new Date(booking?.checkIn).toLocaleDateString()}</p>
-                      <p className="text-sm">Check-out: {new Date(booking?.checkOut).toLocaleDateString()}</p>
-                    </div>
-                    <p className="text-lg font-bold">Total Price: ₹{booking?.totalPrice}</p>
-                    <p className="text-xs opacity-60">Booked on: {new Date(booking?.createdAt).toLocaleDateString()}</p>
-                    <p className="text-sm text-green-700 font-medium">Payment Status: {booking?.isPaid ? "Paid" : "Unpaid"}</p>
-                    <p className="text-sm text-green-700 font-medium">Payment ID: {booking?.isPaid ? <p className=" text-red-500">{booking?.paymentDetails?.paymentId}</p> : " "}</p>
-                  </div>
-                </div>
-              </Grid>
-            </Grid>
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              onClick={() => navigate(`/booking/${booking._id}`)}
+            >
+              View Booking Details
+            </Button>
+          </>
+        )}
 
-            {/* Booking Details */}
-            <div className="mt-4 p-4 bg-gray-50 rounded">
-              <h3 className="font-semibold mb-2">Booking Details</h3>
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <p className="text-sm">Guests: {booking?.guests}</p>
-                </Grid>
-                <Grid item xs={4}>
-                  <p className="text-sm">Nights: {Math.abs(new Date(booking?.checkOut) - new Date(booking?.checkIn))/(1000 * 60 * 60 * 24)}
-</p>
-                </Grid>
-                <Grid item xs={4}>
-                  <p className="text-sm">Status: {booking.paymentDetails?.status}</p>
-                </Grid>
-              </Grid>
-            </div>
-          </Grid>
+        {booking.paymentStatus === "failed" && (
+          <>
+            <ErrorIcon sx={{ fontSize: 70, color: "red", mb: 2 }} />
+            <Typography variant="h5" fontWeight="bold">
+              Payment Failed
+            </Typography>
+            <Typography sx={{ mt: 1, mb: 3 }}>
+              Your payment was not completed.
+            </Typography>
 
-          {/* Host Info */}
-          <Grid item xs={12} className="p-4 bg-gray-50 rounded">
-            <h3 className="font-semibold mb-2">Host Information</h3>
-            <div className="flex items-center gap-4">
-              <img
-                className="w-12 h-12 rounded-full"
-                src={host.avatar || "https://p7.hiclipart.com/preview/282/256/961/user-profile-avatar-computer-icons-google-account.jpg"}
-                alt="Host"
-              />
-              <div>
-                <p className="font-semibold">{booking.user.firstname} {booking.user.lastname}</p>
-                <p className="text-sm text-gray-600">Contact: {booking.user.phone || "N/A"}</p>
-              </div>
-            </div>
-          </Grid>
-        </Grid>
-      </div>
-    </div>
+            <Button
+              variant="contained"
+              color="error"
+              fullWidth
+              size="large"
+              onClick={() => navigate(`/booking/${booking._id}`)}
+            >
+              Retry Payment
+            </Button>
+          </>
+        )}
+
+        {!booking.isPaid && booking.paymentStatus !== "failed" && (
+          <>
+            <HourglassTopIcon sx={{ fontSize: 70, color: "#6366f1", mb: 2 }} />
+            <Typography variant="h5" fontWeight="bold">
+              Payment Processing
+            </Typography>
+            <Typography sx={{ mt: 1, mb: 3 }}>
+              Please wait while we confirm your payment.
+            </Typography>
+
+            <CircularProgress />
+          </>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

@@ -24,12 +24,10 @@ const ReviewForm = ({ listingId }) => {
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state || {});
 
-  // Fade-in animation trigger
   useEffect(() => {
     setFadeIn(true);
   }, []);
 
-  // Auto-hide success message
   useEffect(() => {
     if (success) {
       setShowSuccess(true);
@@ -56,105 +54,158 @@ const ReviewForm = ({ listingId }) => {
   };
 
   return (
-    <Fade in={fadeIn} timeout={600}>
+    <Fade in={fadeIn} timeout={800}>
       <Paper
-        elevation={4}
-        className="p-6 sm:p-8 mt-6 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-[1.01] bg-white"
+        elevation={0}
+        className="relative mt-10 rounded-[2rem] p-[1px] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-[0_30px_80px_rgba(99,102,241,0.4)]"
       >
-        {/* Title */}
-        <Typography
-          variant="h5"
-          className="font-bold text-gray-800 mb-4 text-center sm:text-left"
-        >
-          ✍️ Write a Review
-        </Typography>
+        {/* Inner Glass Card */}
+        <div className="rounded-[2rem] bg-black/70 backdrop-blur-2xl p-8 sm:p-10 text-white space-y-6">
 
-        {/* Loading Spinner */}
-        {loading && (
-          <div className="flex justify-center py-2">
-            <CircularProgress color="primary" />
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && <Alert severity="error">{error}</Alert>}
-
-        {/* Success Message */}
-        <Slide direction="down" in={showSuccess} mountOnEnter unmountOnExit>
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Review submitted successfully!
-          </Alert>
-        </Slide>
-
-        {/* Form */}
-        <form onSubmit={submitHandler} className="space-y-6">
-          {/* Rating */}
-          <Box>
-            <Typography
-              variant="subtitle1"
-              className="text-gray-700 font-medium mb-2"
-            >
-              Rating
-            </Typography>
-            <div
-              className={`transition-transform duration-300 ${
-                animateStars ? "scale-110" : ""
-              }`}
-            >
-              <Rating
-                name="rating"
-                value={rating}
-                onChange={(event, newValue) => {
-                  setRating(newValue);
-                  setAnimateStars(true);
-                  setTimeout(() => setAnimateStars(false), 200);
-                }}
-                size="large"
-                precision={1}
-                className="text-yellow-400"
-              />
-            </div>
-          </Box>
-
-          {/* Comment Input */}
-          <TextField
-            id="comment"
-            label="Your Comment"
-            variant="outlined"
-            multiline
-            fullWidth
-            rows={4}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            required
-            InputProps={{
-              style: {
-                borderRadius: "12px",
-                backgroundColor: "#f9fafb",
-              },
-            }}
-          />
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            fullWidth
-            disabled={loading}
-            sx={{
-              borderRadius: "12px",
-              paddingY: "10px",
-              fontWeight: "600",
-              background: "linear-gradient(45deg, #4facfe 30%, #00f2fe 90%)",
-              "&:hover": {
-                background: "linear-gradient(45deg, #00f2fe 30%, #4facfe 90%)",
-              },
-            }}
+          {/* Title */}
+          <Typography
+            variant="h5"
+            className="font-extrabold tracking-wide bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent"
           >
-            {loading ? "Submitting..." : "Submit Review"}
-          </Button>
-        </form>
+            Share Your Experience
+          </Typography>
+
+          {/* Loading Spinner */}
+          {loading && (
+            <div className="flex justify-center py-2">
+              <CircularProgress sx={{ color: "#a78bfa" }} />
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <Alert
+              severity="error"
+              sx={{
+                background: "rgba(239,68,68,0.1)",
+                color: "#fecaca",
+                border: "1px solid rgba(239,68,68,0.3)",
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* Success Message */}
+          <Slide direction="down" in={showSuccess} mountOnEnter unmountOnExit>
+            <Alert
+              severity="success"
+              sx={{
+                mb: 2,
+                background: "rgba(34,197,94,0.1)",
+                color: "#bbf7d0",
+                border: "1px solid rgba(34,197,94,0.3)",
+              }}
+            >
+              Review submitted successfully!
+            </Alert>
+          </Slide>
+
+          {/* Form */}
+          <form onSubmit={submitHandler} className="space-y-6">
+
+            {/* Rating */}
+            <Box>
+              <Typography className="text-sm uppercase tracking-widest text-gray-400 mb-2">
+                Rating
+              </Typography>
+              <div
+                className={`inline-block transition-transform duration-300 ${
+                  animateStars ? "scale-110" : ""
+                }`}
+              >
+                <Rating
+                  name="rating"
+                  value={rating}
+                  onChange={(event, newValue) => {
+                    setRating(newValue);
+                    setAnimateStars(true);
+                    setTimeout(() => setAnimateStars(false), 200);
+                  }}
+                  size="large"
+                  precision={1}
+                  sx={{
+                    "& .MuiRating-iconFilled": {
+                      color: "#facc15",
+                      filter: "drop-shadow(0 0 6px rgba(250,204,21,0.6))",
+                    },
+                    "& .MuiRating-iconHover": {
+                      color: "#fde047",
+                    },
+                  }}
+                />
+              </div>
+            </Box>
+
+            {/* Comment Input */}
+            <TextField
+              id="comment"
+              label="Your Review"
+              variant="outlined"
+              multiline
+              fullWidth
+              rows={4}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              required
+              InputProps={{
+                style: {
+                  borderRadius: "16px",
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "16px",
+                },
+                "& label.Mui-focused": {
+                  color: "#a78bfa",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#a78bfa",
+                },
+              }}
+            />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={loading}
+              sx={{
+                borderRadius: "14px",
+                paddingY: "14px",
+                fontWeight: "700",
+                letterSpacing: "0.5px",
+                textTransform: "none",
+                background:
+                  "linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899)",
+                boxShadow:
+                  "0 20px 60px rgba(99,102,241,0.6)",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.04)",
+                  boxShadow:
+                    "0 25px 80px rgba(139,92,246,0.7)",
+                  background:
+                    "linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899)",
+                },
+                "&:active": {
+                  transform: "scale(0.97)",
+                },
+              }}
+            >
+              {loading ? "Submitting..." : "Submit Review"}
+            </Button>
+          </form>
+        </div>
       </Paper>
     </Fade>
   );

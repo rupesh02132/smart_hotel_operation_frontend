@@ -1,6 +1,4 @@
-import axios from "axios";
-import { API_BASE_URL } from "../../config/apiConfig";
-import { api } from "../../config/apiConfig";
+import { api } from "../../Admin/config/apiConfig";
 
 import {
   REGISTER_FAILURE,
@@ -10,7 +8,6 @@ import {
   LOGIN_FAILURE,
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
-
   GET_USER_SUCCESS,
   GET_USER_FAILURE,
   GET_USER_REQUEST,
@@ -20,35 +17,59 @@ import {
   GET_ALL_USERS_SUCCESS,
   GET_ALL_USERS_FAILURE,
   GET_ALL_USERS_REQUEST,
-
-    DELETE_USER_REQUEST,
+  DELETE_USER_REQUEST,
   DELETE_USER_SUCCESS,
   DELETE_USER_FAILURE,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_SUCCESS,
+  FORGOT_PASSWORD_FAILURE,
+  RESET_PASSWORD_REQUEST,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAILURE,
+  SEND_OTP_REQUEST,
+  SEND_OTP_SUCCESS,
+  SEND_OTP_FAILURE,
+  VERIFY_OTP_REQUEST,
+  VERIFY_OTP_SUCCESS,
+  VERIFY_OTP_FAILURE,
+  GOOGLE_LOGIN_REQUEST,
+  GOOGLE_LOGIN_SUCCESS,
+  GOOGLE_LOGIN_FAILURE,
+  RESEND_OTP_REQUEST,
+  RESEND_OTP_SUCCESS,
+  RESEND_OTP_FAILURE,
+  UPDATE_AVATAR_REQUEST,
+  UPDATE_AVATAR_SUCCESS,
+  UPDATE_AVATAR_FAILURE,
 } from "./ActionType";
 
+export const clearAuthMessage = () => ({
+  type: "CLEAR_AUTH_MESSAGE",
+});
+
 // Register Actions
-const registerRequest = () => ({ type: REGISTER_REQUEST });
-const registerSuccess = (user) => ({ type: REGISTER_SUCCESS, payload: user });
-const registerFailure = (error) => ({ type: REGISTER_FAILURE, payload: error });
-
 export const register = (userData) => async (dispatch) => {
-  console.log("userData", userData);
-  dispatch(registerRequest());
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/auth/signup`,
-      userData
-    );
+  dispatch({ type: REGISTER_REQUEST });
 
-    const user = response.data;
-    if (user.jwt) {
-      localStorage.setItem("jwt", user.jwt);
-    }
-    console.log("user", user);
-    dispatch(registerSuccess(user));
+  try {
+    const { data } = await api.post("/api/auth/signup", userData);
+
+    // 🔥 Persist OTP flow state
+    localStorage.setItem("pendingOtpVerification", "true");
+    localStorage.setItem("otpEmail", userData.email);
+
+    dispatch({
+      type: REGISTER_SUCCESS,
+      payload: {
+        message: data.message,
+        pendingEmail: userData.email, // still keep Redux copy if needed
+      },
+    });
   } catch (error) {
-    const errorMessage = error.response?.data?.message || error.message;
-    dispatch(registerFailure(errorMessage));
+    dispatch({
+      type: REGISTER_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
   }
 };
 
@@ -70,7 +91,7 @@ export const login = (userData) => async (dispatch) => {
     localStorage.setItem("user", JSON.stringify(user));
 
     dispatch(loginSuccess(jwt, user));
-    dispatch(getUser(jwt, user)); 
+    dispatch(getUser(jwt, user));
   } catch (err) {
     const msg = err.response?.data?.message || err.message;
     dispatch(loginFailure(msg));
@@ -82,27 +103,17 @@ const getUserRequest = () => ({ type: GET_USER_REQUEST });
 const getUserSuccess = (user) => ({ type: GET_USER_SUCCESS, payload: user });
 const getUserFailure = (error) => ({ type: GET_USER_FAILURE, payload: error });
 
-export const getUser =
-  (jwt = localStorage.getItem("jwt")) =>
-  async (dispatch) => {
-    dispatch(getUserRequest());
-
-    if (!jwt) {
-      dispatch(getUserFailure("No JWT token found"));
-      return;
-    }
-
-    try {
-      const { data } = await api.get("/api/auth/profile", {
-        headers: { Authorization: `Bearer ${jwt}` }, // now jwt is a string
-      });
-      dispatch(getUserSuccess(data));
-      console.log("data", data);
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      dispatch(getUserFailure(msg));
-    }
-  };
+export const getUser = () => async (dispatch) => {
+  dispatch(getUserRequest());
+  try {
+    const { data } = await api.get("/api/auth/profile");
+    dispatch(getUserSuccess(data));
+  } catch (err) {
+    const msg = err.response?.data?.message || err.message;
+    dispatch(getUserFailure(msg));
+  }
+};
+// Get All Users Action
 
 export const getAllUser = () => async (dispatch) => {
   dispatch({ type: GET_ALL_USERS_REQUEST });
@@ -122,9 +133,9 @@ export const logout = () => (dispatch) => {
 };
 
 export const updateUserProfile = (user) => async (dispatch) => {
-  dispatch({ type: UPDATE_USER_REQUEST});
+  dispatch({ type: UPDATE_USER_REQUEST });
   try {
-    const response = await api.put(`api/auth/updateProfile`, user );
+    const response = await api.put(`api/auth/updateProfile`, user);
     const updatedUser = response.data;
     dispatch({ type: UPDATE_USER_SUCCESS, payload: updatedUser });
   } catch (error) {
@@ -141,7 +152,7 @@ export const deleteUser = (userId) => async (dispatch) => {
 
     dispatch({
       type: DELETE_USER_SUCCESS,
-      payload:userId,
+      payload: userId,
     });
   } catch (error) {
     dispatch({
@@ -150,3 +161,152 @@ export const deleteUser = (userId) => async (dispatch) => {
     });
   }
 };
+
+// Forgot Password
+export const forgotPassword = (email) => async (dispatch) => {
+  dispatch({ type: FORGOT_PASSWORD_REQUEST });
+  try {
+    const { data } = await api.post("/api/auth/forgot-password", { email });
+    dispatch({ type: FORGOT_PASSWORD_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: FORGOT_PASSWORD_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+// Reset Password
+export const resetPassword = (token, password) => async (dispatch) => {
+  dispatch({ type: RESET_PASSWORD_REQUEST });
+  try {
+    const { data } = await api.post(`/api/auth/reset-password/${token}`, {
+      password,
+    });
+    dispatch({ type: RESET_PASSWORD_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: RESET_PASSWORD_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+// Send OTP
+export const sendOtp = (phone) => async (dispatch) => {
+  dispatch({ type: SEND_OTP_REQUEST });
+  try {
+    const { data } = await api.post("/api/auth/send-otp", { phone });
+    dispatch({ type: SEND_OTP_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: SEND_OTP_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+// Verify OTP
+export const verifyOtp =
+  ({ email, otp }) =>
+  async (dispatch) => {
+    dispatch({ type: VERIFY_OTP_REQUEST });
+
+    try {
+      const { data } = await api.post("/api/auth/verify-otp", {
+        email,
+        otp,
+      });
+
+      // 🔥 Clear OTP flow state
+      localStorage.removeItem("pendingOtpVerification");
+      localStorage.removeItem("otpEmail");
+
+      dispatch({
+        type: VERIFY_OTP_SUCCESS,
+        payload: data.message, // "Email verified successfully"
+      });
+    } catch (error) {
+      dispatch({
+        type: VERIFY_OTP_FAILURE,
+        payload: error.response?.data?.message || "OTP verification failed",
+      });
+    }
+  };
+
+export const resendEmailOtp =
+  ({ email }) =>
+  async (dispatch) => {
+    dispatch({ type: RESEND_OTP_REQUEST });
+
+    try {
+      const { data } = await api.post("/api/auth/resend-otp", { email });
+
+      dispatch({
+        type: RESEND_OTP_SUCCESS,
+        payload: data.message, // "OTP resent successfully"
+      });
+    } catch (error) {
+      dispatch({
+        type: RESEND_OTP_FAILURE,
+        payload: error.response?.data?.message || "Failed to resend OTP",
+      });
+    }
+  };
+
+export const googleLogin = (token) => async (dispatch) => {
+  dispatch({ type: GOOGLE_LOGIN_REQUEST });
+  try {
+    const { data } = await api.post("/api/auth/google-login", { token });
+
+    dispatch({
+      type: GOOGLE_LOGIN_SUCCESS,
+      payload: data,
+    });
+
+    localStorage.setItem("jwt", data.jwt);
+  } catch (error) {
+    dispatch({
+      type: GOOGLE_LOGIN_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+
+export const updateAvatar =
+  (file) => async (dispatch) => {
+    try {
+      dispatch({
+        type: UPDATE_AVATAR_REQUEST,
+      });
+
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const { data } = await api.put(
+        "/api/auth/avatar",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      dispatch({
+        type: UPDATE_AVATAR_SUCCESS,
+        payload: data.avatar,
+      });
+
+    } catch (error) {
+
+      dispatch({
+        type: UPDATE_AVATAR_FAILURE,
+        payload:
+          error.response?.data?.message ||
+          error.message,
+      });
+
+    }
+  };

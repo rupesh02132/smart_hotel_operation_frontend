@@ -74,6 +74,23 @@ const CreateListingForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+
+const handleFileUpload = (index, e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setFormData((prev) => {
+    const updated = [...prev.images];
+    updated[index] = file;
+    return { ...prev, images: updated };
+  });
+};
+
+
+
+
+
 
   const handleImageChange = (index, value) => {
     const updatedImages = [...formData.images];
@@ -85,35 +102,53 @@ const CreateListingForm = () => {
     setFormData((prev) => ({ ...prev, images: [...prev.images, ""] }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    const preparedData = {
-      ...formData,
-      price: Number(formData.price),
-      guests: Number(formData.guests),
-      bedrooms: Number(formData.bedrooms),
-      beds: Number(formData.beds),
-      baths: Number(formData.baths),
-      amenities: formData.amenities
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean),
-      location: {
-        type: "Point",
-        coordinates: formData.location.coordinates.map(Number),
-      },
-    };
-
-    if (id) {
-      dispatch(updateListing({ id, listingData: preparedData }));
-      navigate(`/listing/${id}`);
-    } else {
-      dispatch(createListing(preparedData));
-      setSuccess(true);
-      setFormData(initialFormState);
-    }
+  const preparedData = {
+    ...formData,
+    price: Number(formData.price),
+    guests: Number(formData.guests),
+    bedrooms: Number(formData.bedrooms),
+    beds: Number(formData.beds),
+    baths: Number(formData.baths),
+    amenities: formData.amenities
+      .split(",")
+      .map((a) => a.trim())
+      .filter(Boolean),
+    location: {
+      type: "Point",
+      coordinates: formData.location.coordinates.map(Number),
+    },
   };
+
+  const data = new FormData();
+
+  Object.keys(preparedData).forEach((key) => {
+    if (key !== "images" && key !== "location") {
+      data.append(key, preparedData[key]);
+    }
+  });
+
+  data.append("longitude", preparedData.location.coordinates[0]);
+  data.append("latitude", preparedData.location.coordinates[1]);
+
+  preparedData.images.forEach((img) => {
+    if (img instanceof File) {
+      data.append("images", img);   // MUST be "images"
+    }
+  });
+
+  if (id) {
+    dispatch(updateListing({ id, listingData: data }));
+    navigate(`/listing/${id}`);
+  } else {
+    dispatch(createListing(data));
+    setSuccess(true);
+    setFormData(initialFormState);
+  }
+};
+
 
   const textFieldProps = {
     fullWidth: true,
@@ -275,18 +310,60 @@ const CreateListingForm = () => {
               </Select>
             </FormControl>
           </Grid>
+          {/* Image URLs */}
 
           {formData.images.map((img, index) => (
-            <Grid item xs={12} key={index}>
-              <TextField
-                label={`Image URL ${index + 1}`}
-                fullWidth
-                value={img}
-                onChange={(e) => handleImageChange(index, e.target.value)}
-                sx={{ mb: { xs: 1, sm: 2 } }}
-              />
-            </Grid>
-          ))}
+  <Grid item xs={12} key={index}>
+    <Grid container spacing={2} alignItems="center">
+
+      {/* Image URL Input */}
+      <Grid item xs={12} sm={8}>
+        <TextField
+          label={`Image URL ${index + 1}`}
+          fullWidth
+          value={typeof img === "string" ? img : ""}
+          onChange={(e) => handleImageChange(index, e.target.value)}
+        />
+      </Grid>
+
+      {/* Upload Button */}
+      <Grid item xs={12} sm={4}>
+        <Button
+          variant="outlined"
+          component="label"
+          fullWidth
+          sx={{ height: "56px" }}
+        >
+          Upload Image
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => handleFileUpload(index, e)}
+          />
+        </Button>
+      </Grid>
+
+    </Grid>
+
+    {/* Preview (works for URL or File) */}
+    {img && (
+      <img
+        src={typeof img === "string" ? img : URL.createObjectURL(img)}
+        alt="preview"
+        style={{
+          width: "100%",
+          maxHeight: 200,
+          objectFit: "cover",
+          marginTop: 10,
+          borderRadius: 6,
+          border: "1px solid #ddd",
+        }}
+      />
+    )}
+  </Grid>
+))}
+
 
           <Grid item xs={12}>
             <Button

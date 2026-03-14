@@ -1,188 +1,334 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import ListingCard from '../components/ListingCard';
-import Loader from '../components/Loader';
-import Message from '../components/Message';
-import SearchBar from '../components/SearchBar';
-import { findListing } from '../state/listing/Action';
-import { FaMap } from 'react-icons/fa';
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+
+import ListingCard from "../components/ListingCard";
+import Message from "../components/Message";
+
+import { findListing } from "../state/listing/Action";
+
+import {
+  FaMicrophone,
+  FaSmile,
+  FaRobot,
+} from "react-icons/fa";
+
+import { Rating } from "@mui/material";
+import Skeleton from "@mui/material/Skeleton";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+/* ======================
+   CONFIG
+====================== */
+
+const TRENDING_CITIES = ["Dubai", "Paris", "New York", "London", "Goa", "Bali"];
+
+const SORT_OPTIONS = [
+  { label: "Newest", value: "" },
+  { label: "Top Rated", value: "rating" },
+];
+
+const FEATURED_COUNT = 6;
+
+const luxuryField = {
+  "& .MuiOutlinedInput-root": {
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "14px",
+    color: "#fff",
+    backdropFilter: "blur(10px)",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(234,179,8,0.4)",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#facc15",
+  },
+  "& .MuiInputLabel-root": {
+    color: "#facc15",
+  },
+};
+
+const detectMood = (city, rating) => {
+  if (rating >= 4.5) return "Luxury Mode";
+  if (city) return "Explore Mode";
+  return "Browsing";
+};
+
+/* ======================
+   COMPONENT
+====================== */
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { listings } = useSelector((store) => store);
-  console.log('listings from home',listings);
+
+  /* ======================
+     FILTER STATES
+  ====================== */
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchCity, setSearchCity] = useState('');
-  
-  const listingsPerPage = 16;
-  const [totalListings, setTotalListings] = useState(0);
-  const totalPages = Math.ceil(totalListings / listingsPerPage);
-  const {totalCount}=listings.listing;
-  const listing=listings.listing.listings;
-  
-  const { loading, error  } = listings; 
 
- useEffect(() => {
-    dispatch(findListing({ 
-      city: searchCity,
-      skip: (currentPage - 1) * listingsPerPage,
-      limit: listingsPerPage
-    }));
-  }, [dispatch, currentPage, searchCity]);
+  const [searchCity, setSearchCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [title, setTitle] = useState("");
 
-  // Update total listings when data changes
+  const [debouncedCity, setDebouncedCity] = useState("");
+
+  const [rating, setRating] = useState(0);
+
+  const [sortBy, setSortBy] = useState("");
+
+  const [checkInDate, setCheckInDate] = useState(null);
+
+  const [mood, setMood] = useState("Browsing");
+
+  const listingsPerPage = 12;
+
+  const listingData = listings.listing?.listings || [];
+  const totalCount = listings.listing?.totalCount || 0;
+
+  const { loading, error } = listings;
+
+  /* ======================
+     DEBOUNCE CITY SEARCH
+  ====================== */
+
   useEffect(() => {
-    if (totalCount !== undefined) {
-      setTotalListings(totalCount);
-    }
-  }, [totalCount]);
+    const timer = setTimeout(() => {
+      setDebouncedCity(searchCity);
+      setCurrentPage(1);
+    }, 600);
 
-  // Search handler
-  const searchHandler = (e) => {
-    e.preventDefault();
-    const city = e.target.elements.city.value;
-    setSearchCity(city);
+    return () => clearTimeout(timer);
+  }, [searchCity]);
+
+  /* ======================
+     FETCH LISTINGS
+  ====================== */
+
+  useEffect(() => {
+    dispatch(
+      findListing({
+        city: debouncedCity || undefined,
+        country: country || undefined,
+        title: title || undefined,
+
+        rating: rating || undefined,
+        sortBy: sortBy || undefined,
+
+        checkIn: checkInDate
+          ? checkInDate.format("YYYY-MM-DD")
+          : undefined,
+
+        skip: (currentPage - 1) * listingsPerPage,
+        limit: listingsPerPage,
+      })
+    );
+
+    setMood(detectMood(searchCity, rating));
+  }, [
+    dispatch,
+    currentPage,
+    debouncedCity,
+    country,
+    title,
+    rating,
+    sortBy,
+    checkInDate,
+  ]);
+
+  /* ======================
+     FEATURED HOTELS
+  ====================== */
+
+  const featuredHotels = useMemo(
+    () => listingData.slice(0, FEATURED_COUNT),
+    [listingData]
+  );
+
+  /* ======================
+     VOICE SEARCH
+  ====================== */
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) return alert("Voice not supported");
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.start();
+
+    recognition.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      setSearchCity(text);
+    };
+  };
+
+  /* ======================
+     RESET FILTERS
+  ====================== */
+
+  const resetFilters = () => {
+    setSearchCity("");
+    setCountry("");
+    setTitle("");
+    setRating(0);
+    setSortBy("");
+    setCheckInDate(null);
     setCurrentPage(1);
-    dispatch(findListing({ 
-      city, 
-      skip: 0,
-      limit: listingsPerPage
-    }));
   };
 
-  // View all listings on map
-  const viewAllOnMap = () => {
-    const mapUrl = searchCity ? `/map/${encodeURIComponent(searchCity)}` : '/map';
-    navigate(mapUrl);
-  };
-
-  // Pagination handlers
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  // Get current page listings
-  const currentListings = Array.isArray(listing) ? listing : [];
+  /* ======================
+     UI
+  ====================== */
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl md:text-3xl font-bold text-center mb-6">Vacation Rentals</h1>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div className="space-y-10 px-4 pb-20">
 
-      {/* Search Bar */}
-      <div className="mb-8 max-w-2xl mx-auto">
-        <SearchBar searchHandler={searchHandler} />
-      </div>
+        {/* MOOD BAR */}
+        <div className="bg-gradient-to-r from-purple-900 to-black rounded-xl px-6 py-3 flex items-center gap-3 shadow">
+          <FaSmile className="text-yellow-400" />
+          <span className="text-white font-semibold">
+            Guest Mode: {mood}
+          </span>
+        </div>
 
-      {/* View All on Map Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={viewAllOnMap}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-        >
-          <FaMap />
-          View All on Map
-        </button>
-      </div>
+        {/* SEARCH BAR */}
+        <div className="bg-gradient-to-r from-[#0f172a] via-[#020617] to-black p-6 rounded-3xl border border-yellow-600/30 shadow-xl">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
-      {/* Loading or Error */}
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant="error">{error}</Message>
-      ) : (
-        <div className="mt-6">
-          {/* Results Count */}
-          <div className="mb-4 text-sm md:text-base">
-            {currentListings.length > 0 ? (
-              <p>
-                Page {currentPage} of {totalPages} - 
-                Showing {currentListings.length} of {totalListings} listings
-                {searchCity && ` in ${searchCity}`}
-              </p>
-            ) : (
-              <p>No results found</p>
-            )}
+            {/* CITY */}
+            <Autocomplete
+              freeSolo
+              options={TRENDING_CITIES}
+              value={searchCity}
+              onInputChange={(e, v) => setSearchCity(v)}
+              renderInput={(params) => (
+                <TextField {...params} label="City" sx={luxuryField} />
+              )}
+            />
+
+            {/* COUNTRY */}
+            <TextField
+              label="Country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              sx={luxuryField}
+            />
+
+            {/* HOTEL NAME */}
+            <TextField
+              label="Hotel Name"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              sx={luxuryField}
+            />
+
+            {/* RATING */}
+            <div>
+              <p className="text-xs text-yellow-300 mb-1">Min Rating</p>
+              <Rating
+                value={rating}
+                onChange={(e, v) => setRating(v)}
+              />
+            </div>
+
+            {/* VOICE */}
+            <button
+              onClick={startVoiceSearch}
+              className="rounded-xl bg-yellow-500 text-black font-bold flex items-center justify-center gap-2"
+            >
+              <FaMicrophone /> Voice
+            </button>
+
+            {/* RESET */}
+            <button
+              onClick={resetFilters}
+              className="rounded-xl bg-white/10 text-white font-bold"
+            >
+              Reset
+            </button>
           </div>
+        </div>
 
-          {/* Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {currentListings.map((listing) => (
-              <Link 
-                to={`/listing/${listing._id}`}
-                key={listing._id} 
-                className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex flex-wrap m-1"><ListingCard listing={listing} /></div>
-                
-              </Link>
+        {/* FEATURED */}
+        <h2 className="text-2xl font-bold text-white">
+          Featured Hotels
+        </h2>
+
+        <div className="flex gap-4 overflow-x-auto pb-3">
+          {featuredHotels.map((hotel) => (
+            <div
+              key={hotel._id}
+              onClick={() => navigate(`/hotel/${hotel._id}/rooms`)}
+              className="cursor-pointer min-w-[260px] bg-white/10 rounded-xl p-2 hover:scale-105 transition"
+            >
+              <ListingCard listing={hotel} />
+            </div>
+          ))}
+        </div>
+
+        {/* ALL HOTELS */}
+        <h2 className="text-2xl font-bold text-white">
+          All Hotels
+        </h2>
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} variant="rectangular" height={260} />
             ))}
           </div>
-
-          {/* No Results Message */}
-          {currentListings.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-xl">No listings match your search criteria</p>
-              <button 
-                onClick={() => {
-                  setSearchCity('');
-                  setCurrentPage(1);
-                  dispatch(findListing({ skip: 0, limit: listingsPerPage }));
-                }}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+        ) : error ? (
+          <Message variant="danger">{error}</Message>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {listingData.map((hotel) => (
+              <div
+                key={hotel._id}
+                onClick={() => navigate(`/hotel/${hotel._id}/rooms`)}
+                className="cursor-pointer bg-white/10 rounded-xl p-2 hover:scale-105 transition"
               >
-                Reset Search
-              </button>
-            </div>
-          )}
+                <ListingCard listing={hotel} />
+              </div>
+            ))}
+          </div>
+        )}
 
-          {/* Pagination Controls - FIXED CONDITION */}
-          {totalPages > 1 && (
-  <div className="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4 sm:gap-6">
-    <button
-      onClick={prevPage}
-      disabled={currentPage === 1}
-      className={`w-full sm:w-auto px-5 py-2 rounded-lg font-medium transition duration-200 text-center
-        ${currentPage === 1
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-indigo-600 text-white hover:bg-indigo-700'
-        }`}
-    >
-      ← Previous
-    </button>
+        {/* PAGINATION */}
+        <div className="flex justify-center gap-4 mt-10">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-6 py-2 bg-white/10 rounded-lg disabled:opacity-40"
+          >
+            Prev
+          </button>
 
-    <span className="text-sm sm:text-base text-gray-800 font-semibold">
-      Page <span className="text-indigo-600">{currentPage}</span> of <span className="text-indigo-600">{totalPages}</span>
-    </span>
+          <span className="text-white font-bold">
+            Page {currentPage}
+          </span>
 
-    <button
-      onClick={nextPage}
-      disabled={currentPage === totalPages}
-      className={`w-full sm:w-auto px-5 py-2 rounded-lg font-medium transition duration-200 text-center
-        ${currentPage === totalPages
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-indigo-600 text-white hover:bg-indigo-700'
-        }`}
-    >
-      Next →
-    </button>
-  </div>
-)}
-
+          <button
+            disabled={currentPage * listingsPerPage >= totalCount}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-6 py-2 bg-white/10 rounded-lg disabled:opacity-40"
+          >
+            Next
+          </button>
         </div>
-      )}
-    </div>
+      </div>
+    </LocalizationProvider>
   );
 };
 

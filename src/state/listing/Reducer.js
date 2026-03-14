@@ -19,7 +19,11 @@ import {
   GET_LISTING_BY_ID_FAILURE,
   GET_ALL_LISTINGS_REQUEST,
   GET_ALL_LISTINGS_SUCCESS,
-  GET_ALL_LISTINGS_FAILURE
+  GET_ALL_LISTINGS_FAILURE,
+  HOST_LISTINGS_REQUEST,
+  HOST_LISTINGS_SUCCESS,
+  HOST_LISTINGS_FAIL,
+  
 } from "./ActionType";
 
 // src/redux/store/initialState.js
@@ -210,7 +214,38 @@ export const listingReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
         success: false,
-      }
+      };
+      // ✅ HOST LISTINGS
+case HOST_LISTINGS_REQUEST:
+  return {
+    ...state,
+    listings: {
+      ...state.listings,
+      loading: true,
+    },
+  };
+
+case HOST_LISTINGS_SUCCESS:
+  return {
+    ...state,
+    listings: {
+      data: action.payload,
+      loading: false,
+      error: null,
+    },
+  };
+
+case HOST_LISTINGS_FAIL:
+  return {
+    ...state,
+    listings: {
+      ...state.listings,
+      loading: false,
+      error: action.payload,
+    },
+  };
+
+
     default:
       return state;
   }

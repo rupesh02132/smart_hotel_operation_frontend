@@ -11,6 +11,231 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* search placeholder fix  in staff dashboard */
+.placeholder-light::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  background: red;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+.nav-animated {
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+.nav-animated:hover {
+  color: #4fc3f7 !important;
+}
+
+.active-link {
+  color: #4fc3f7 !important;
+  font-weight: 600;
+}
+
+.signup-btn {
+  background: linear-gradient(135deg, #42a5f5, #7e57c2);
+  border-radius: 20px;
+  padding: 6px 16px !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+
+.signup-btn:hover {
+  transform: scale(1.05);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 rgba(99,102,241,0.6); }
+  50% { box-shadow: 0 0 25px rgba(99,102,241,0.9); }
+  100% { box-shadow: 0 0 0 rgba(99,102,241,0.6); }
+}
+
+.ai-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out;
+}
+
+
+.luxury-select {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  color: #facc15;
+  border: 1px solid rgba(234,179,8,0.4);
+  border-radius: 14px;
+  padding: 12px;
+  outline: none;
+  backdrop-filter: blur(10px);
+}
+
+.luxury-select option {
+  background: #020617;
+  color: #fff;
+}
+
+.luxury-btn {
+  background: linear-gradient(135deg, #facc15, #eab308);
+  color: #020617;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(234,179,8,0.35);
+}
+
+.luxury-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(234,179,8,0.55);
+}
+
+.luxury-btn-outline {
+  background: rgba(255,255,255,0.1);
+  color: #facc15;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(234,179,8,0.4);
+  transition: all 0.3s ease;
+}
+
+.luxury-btn-outline:hover {
+  background: rgba(234,179,8,0.15);
+  transform: scale(1.05);
+}
+
+
+
+.luxury-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(250,204,21,0.4);
+  color: white;
+  outline: none;
+}
+
+.luxury-input:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 12px rgba(250,204,21,0.4);
+}
+
+.luxury-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(45deg,#facc15,#f59e0b);
+  color: #111;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.luxury-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(250,204,21,0.5);
+}
+
+
+
+/* for chatbot */
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html { scroll-behavior: smooth; }
+
+/* --- Chatbot Specific Styles --- */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+.custom-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideIn { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fadeIn { animation: fadeIn 0.2s ease-out forwards; }
+
+/* Luxury UI Classes */
+.luxury-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(250,204,21,0.4);
+  color: white;
+  outline: none;
+}
+
+
+.input-elite {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-300 bg-white/80 
+  focus:outline-none focus:ring-2 focus:ring-gray-800 
+  focus:border-transparent transition-all duration-200;
+}

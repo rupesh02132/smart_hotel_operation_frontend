@@ -1,5 +1,5 @@
 
-import { api } from "../../config/apiConfig";
+import { api } from "../../Admin/config/apiConfig";
 
 import {
   CREATE_BOOKING_REQUEST,
@@ -23,8 +23,22 @@ import {
   GET_ALL_BOOKINGS_FAIL,
   GET_BOOKINGS_ID_REQUEST,
   GET_BOOKINGS_ID_SUCCESS,
-  GET_BOOKINGS_ID_FAILURE
-
+  GET_BOOKINGS_ID_FAILURE,
+  BOOKING_ACCEPT_REQUEST,
+  BOOKING_ACCEPT_SUCCESS,
+  BOOKING_ACCEPT_FAILURE,
+  BOOKING_REJECT_REQUEST,
+  BOOKING_REJECT_SUCCESS,
+  BOOKING_REJECT_FAILURE,
+  BOOKING_ASSIGN_ROOM_REQUEST,
+  BOOKING_ASSIGN_ROOM_SUCCESS,
+  BOOKING_ASSIGN_ROOM_FAILURE,
+  BOOKING_MANUAL_CHECKIN_REQUEST,
+  BOOKING_MANUAL_CHECKIN_SUCCESS,
+  BOOKING_MANUAL_CHECKIN_FAILURE,
+  BOOKING_MANUAL_CHECKOUT_REQUEST,
+  BOOKING_MANUAL_CHECKOUT_SUCCESS,
+  BOOKING_MANUAL_CHECKOUT_FAILURE
 } from "./ActionType";
 export const createBooking = (reqData) => async (dispatch) => {
   dispatch({ type: CREATE_BOOKING_REQUEST });
@@ -145,6 +159,113 @@ export const getAllBookings = () => async (dispatch) => {
       payload: error.response && error.response.data.message
         ? error.response.data.message
         : error.message,
+    });
+  }
+};
+
+export const acceptBooking = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: BOOKING_ACCEPT_REQUEST });
+
+    const { data } = await api.put(`/api/bookings/${id}/accept`);
+
+    dispatch({
+      type: BOOKING_ACCEPT_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: BOOKING_ACCEPT_FAILURE,
+      payload:
+        error.response?.data?.message || error.message,
+    });
+  }
+};
+
+export const rejectBooking = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: BOOKING_REJECT_REQUEST });
+
+    const { data } = await api.put(`/api/bookings/${id}/reject`);
+
+    dispatch({
+      type: BOOKING_REJECT_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: BOOKING_REJECT_FAILURE,
+      payload:
+        error.response?.data?.message || error.message,
+    });
+  }
+};
+
+export const assignRoomNumber = (id, roomNumber) => async (dispatch) => {
+  try {
+    dispatch({ type: BOOKING_ASSIGN_ROOM_REQUEST });
+
+    const { data } = await api.put(
+      `/api/bookings/${id}/assign-room`,
+      { roomNumber }
+    );
+
+    dispatch({
+      type: BOOKING_ASSIGN_ROOM_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: BOOKING_ASSIGN_ROOM_FAILURE,
+      payload:
+        error.response?.data?.message || error.message,
+    });
+  }
+};
+
+export const manualCheckIn = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: BOOKING_MANUAL_CHECKIN_REQUEST });
+
+    const { data } = await api.put(
+      `/api/bookings/${id}/manual-checkin`
+    );
+
+    dispatch({
+      type: BOOKING_MANUAL_CHECKIN_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: BOOKING_MANUAL_CHECKIN_FAILURE,
+      payload:
+        error.response?.data?.message || error.message,
+    });
+  }
+};
+
+export const manualCheckOut = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: BOOKING_MANUAL_CHECKOUT_REQUEST });
+
+    const { data } = await api.put(
+      `/api/bookings/${id}/manual-checkout`
+    );
+
+    dispatch({
+      type: BOOKING_MANUAL_CHECKOUT_SUCCESS,
+      payload: data,
+    });
+
+  } catch (error) {
+    dispatch({
+      type: BOOKING_MANUAL_CHECKOUT_FAILURE,
+      payload:
+        error.response?.data?.message || error.message,
     });
   }
 };

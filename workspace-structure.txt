@@ -1,0 +1,156 @@
+airbnbfronted/
+├─ .gitignore
+├─ .env
+├─ package.json
+├─ package-lock.json
+├─ README.md
+├─ vercel.json
+├─ tailwind.config.js
+├─ workspace-file-tree.txt
+├─ workspace-structure.txt
+├─ public/
+│  ├─ favicon.ico
+│  ├─ index.html
+│  ├─ logo192.png
+│  ├─ logo512.png
+│  └─ manifest.json
+└─ src/
+   ├─ App.css
+   ├─ App.js
+   ├─ App.test.js
+   ├─ index.css
+   ├─ index.js
+   ├─ logo.svg
+   ├─ reportWebVitals.js
+   ├─ setupTests.js
+   ├─ Admin/
+   │  ├─ Admin.jsx
+   │  ├─ config/
+   │  │  └─ apiConfig.js
+   │  └─ component/
+   │     ├─ AdminDashboard.js
+   │     ├─ AdminRegisterScreen.js
+   │     ├─ AnalyticsDashboard.js
+   │     ├─ AttendanceDashboard.js
+   │     ├─ BookingTable.jsx
+   │     ├─ BookingTimeline.js
+   │     ├─ CreateListingForm.jsx
+   │     ├─ CustomerTable.jsx
+   │     ├─ GenerateQR.js
+   │     ├─ HostBookingTable.jsx
+   │     ├─ LiveRoomStatus.js
+   │     └─ ListingTable.jsx
+   ├─ AppNavigator.mobile.js (mobile entry)
+   ├─ Dashboard/
+   │  ├─ host/
+   │  │  ├─ HostDashboard.jsx
+   │  │  └─ HostLayout.jsx
+   │  ├─ manager/
+   │  │  ├─ ManagerDashboard.jsx
+   │  │  └─ ManagerLayout.jsx
+   │  └─ staff/
+   │     ├─ StaffDashboard.jsx
+   │     └─ StaffLayout.jsx
+   ├─ Routers/
+   │  ├─ AdminRouter.jsx
+   │  ├─ CustomerRouters.jsx
+   │  ├─ HostRouter.js
+   │  ├─ ManagerRouter.jsx
+   │  └─ StaffRouter.jsx
+   ├─ User/
+   │  ├─ MyBookings.js
+   │  ├─ MyListings.js
+   │  ├─ ProfileSettings.js
+   │  └─ UserDashboardScreen.js
+   ├─ mobile/
+   │  ├─ AppNavigator.js
+   │  └─ screens/
+   │     └─ BookingScreen.js
+   ├─ Payment/
+   │  └─ PaymentSuccess.jsx
+   ├─ components/
+   │  ├─ AIDynamicPricing.js
+   │  ├─ BookingStatusTimeline.js
+   │  ├─ Chatbot.js
+   │  ├─ DynamicPrice.js
+   │  ├─ Footer.js
+   │  ├─ Header.js
+   │  ├─ InvoiceButton.js
+   │  ├─ InvoicePDF.js
+   │  ├─ Loader.js
+   │  ├─ ListingCard.js
+   │  ├─ Map.js
+   │  ├─ Message.js
+   │  ├─ ProtectedRoute.js
+   │  ├─ PrivateRoute.js
+   │  ├─ Rating.js
+   │  ├─ ReviewForm.js
+   │  ├─ RoomStatusBadge.js
+   │  ├─ ScrollToTop.js
+   │  └─ SearchBar.js
+   ├─ screens/
+   │  ├─ BookingDetailsScreen.js
+   │  ├─ CheckInScreen.js
+   │  ├─ ContactPage.js
+   │  ├─ ForgotPasswordScreen.js
+   │  ├─ HomeScreen.js
+   │  ├─ HousekeepingBoard.js
+   │  ├─ HousekeepingScreen.js
+   │  ├─ HostBookingsScreen.js
+   │  ├─ HostScreen.js
+   │  ├─ ListingFormScreen.js
+   │  ├─ ListingScreen.js
+   │  ├─ LoginScreen.js
+   │  ├─ MapScreen.js
+   │  ├─ MyBookingsScreen.js
+   │  ├─ ProfileScreen.js
+   │  ├─ QrCheckoutScreen.js
+   │  ├─ QrGenerateScreen.js
+   │  ├─ QrScannerScreen.js
+   │  ├─ RegisterScreen.js
+   │  ├─ ResetPasswordScreen.js
+   │  ├─ StaffAttendance.js
+   │  ├─ UserProfile.jsx
+   │  ├─ VerifyOtpScreen.js
+   │  └─ BookingDetailsScreen.js
+   └─ state/
+      ├─ store.js
+      ├─ admin/
+      │  ├─ Action.js
+      │  └─ Reducer.js
+      ├─ analyst/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ auth/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ booking/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ listing/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ Payment/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ rating/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ review/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      ├─ selfCheck/
+      │  ├─ Action.js
+      │  ├─ ActionType.js
+      │  └─ Reducer.js
+      └─ analyst/
+         ├─ Action.js
+         ├─ ActionType.js
+         └─ Reducer.js

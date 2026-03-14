@@ -1,7 +1,7 @@
-import { api } from "../../config/apiConfig.js";
+import { api } from "../../Admin/config/apiConfig.js";
 
 import {
-    CREATE_REVIEW_FAILURE,
+  CREATE_REVIEW_FAILURE,
   CREATE_REVIEW_REQUEST,
   CREATE_REVIEW_SUCCESS,
   DELETE_REVIEW_SUCCESS,
@@ -12,13 +12,13 @@ import {
   GEt_ALL_REVIEWS_SUCCESS,
   GEt_ALL_REVIEWS_FAILURE,
   DELETE_REVIEW_FAILURE,
-  DELETE_REVIEW_REQUEST
+  DELETE_REVIEW_REQUEST,
 } from "./ActionType";
 
 export const createReview = (review) => async (dispatch) => {
   dispatch({ type: CREATE_REVIEW_REQUEST });
-try {
-const { data } = await api.post("/api/reviews/create", review);
+  try {
+    const { data } = await api.post("/api/reviews/create", review);
     dispatch({ type: CREATE_REVIEW_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -56,7 +56,7 @@ export const deleteReview = (id) => async (dispatch) => {
   dispatch({ type: DELETE_REVIEW_REQUEST });
   try {
     await api.delete(`/api/reviews/${id}/delete`);
-    dispatch({ type: DELETE_REVIEW_SUCCESS, payload: id});
+    dispatch({ type: DELETE_REVIEW_SUCCESS, payload: id });
   } catch (error) {
     dispatch({
       type: DELETE_REVIEW_FAILURE,

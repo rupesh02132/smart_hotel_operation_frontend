@@ -1,37 +1,34 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import {getAllListings} from '../state/listing/Action';
-import ListingCard from '../components/ListingCard';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { getAllListings } from "../../state/listing/Action";
+import ListingCard from "../../components/ListingCard";
 
 const HostScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const userId = useSelector((s) => s.auth?.user?.user?._id || '');
-console.log("user",userId)
+  const userId = useSelector((s) => s.auth?.user?.user?._id || "");
+  console.log("user", userId);
 
-const listings1 = useSelector((store) => store.listings);
-const listings = listings1?.listing.listings || [];
-// const {listings} = useSelector((store) => store.listings);
-console.log("listings from host..",listings);
+  const listings1 = useSelector((store) => store.listings);
+  const listings = listings1?.listing.listings || [];
+  // const {listings} = useSelector((store) => store.listings);
+  console.log("listings from host..", listings);
   // Fetch listings on mount
-useEffect(() => {
+  useEffect(() => {
     dispatch(getAllListings({}));
   }, [dispatch]);
 
-const hostListings = listings?.filter((l) => {
-  const id = typeof l.user === 'string' ? l.user : l.user?._id;
-  return id?.toString() === userId?.toString();
-});
+  const hostListings = listings?.filter((l) => {
+    const id = typeof l.user === "string" ? l.user : l.user?._id;
+    return id?.toString() === userId?.toString();
+  });
 
-
-
-  console.log("hostListings",hostListings);
-
+  console.log("hostListings", hostListings);
 
   // Redirect to create page
-  const handleCreate = () => navigate('/host/listings/new');
+  const handleCreate = () => navigate("/host/listings/new");
 
   // Redirect to edit page
   const handleCardClick = (id) => {
@@ -40,16 +37,7 @@ const hostListings = listings?.filter((l) => {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
-      {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-semibold text-gray-800">Host Dashboard</h1>
-        <button
-          onClick={handleCreate}
-          className="btn btn-primary px-4 py-2 mt-4 sm:mt-0 text-white bg-blue-600 hover:bg-blue-700 transition rounded-md"
-        >
-          + New Listing
-        </button>
-      </div>
+    
 
       {/* Listings Grid */}
       {hostListings.length ? (
@@ -77,7 +65,7 @@ const EmptyState = ({ loading }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className={`h-24 w-24 mb-6 ${
-        loading ? 'animate-pulse stroke-gray-400' : 'stroke-gray-300'
+        loading ? "animate-pulse stroke-gray-400" : "stroke-gray-300"
       }`}
       fill="none"
       viewBox="0 0 24 24"
@@ -91,11 +79,16 @@ const EmptyState = ({ loading }) => (
     </svg>
 
     <h2 className="text-xl font-semibold">
-      {loading ? 'Loading listings…' : 'No listings found for your account.'}
+      {loading ? "Loading listings…" : "No listings found for your account."}
     </h2>
     {!loading && (
       <p className="mt-2 text-sm text-gray-600 max-w-sm">
-        Click <span className="text-blue-600 font-medium" > <button >New Listing</button></span> to add your first stay.
+        Click{" "}
+        <span className="text-blue-600 font-medium">
+          {" "}
+          <button>New Listing</button>
+        </span>{" "}
+        to add your first stay.
       </p>
     )}
   </div>

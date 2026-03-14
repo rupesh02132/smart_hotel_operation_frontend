@@ -8,6 +8,12 @@ import { bookingReducer } from "../state/booking/Reducer";
 import { reviewReducer } from "../state/review/Reducer";
 import { ratingReducer } from "../state/rating/Reducer";
 import  paymentReducer  from "../state/Payment/Reducer";
+import { adminReducer } from "./admin/Reducer";
+import { selfCheckReducer } from "../state/selfCheck/Reducer";
+import {analyticsReducer} from "../state/analyst/Reducer";
+import {housekeepingReducer} from "../state/housekeep/Reducer";
+import {chatbotReducer} from "../state/chatbot/Reducer";
+import {roomReducer} from "./room/reducer";
 
 const persistConfig = {
   key: "root",
@@ -22,7 +28,13 @@ const rootReducer = combineReducers({
     review:reviewReducer,
     rating:ratingReducer,
     payment:paymentReducer,
-  
+    admin: adminReducer,
+    selfCheck: selfCheckReducer,
+    analytics: analyticsReducer,
+    housekeeping: housekeepingReducer,
+    chatbot: chatbotReducer,
+    room: roomReducer,
+
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
