@@ -12,7 +12,8 @@ import { Box, Avatar, IconButton, Tooltip } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import UploadIcon from "@mui/icons-material/Upload";
-
+import { FaMapMarkedAlt } from "react-icons/fa";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 /* ======================
    CONFIG MAPS
 ====================== */
@@ -132,12 +133,12 @@ const Header = () => {
   }, [bookings]);
 
   /* 👤 Profile Upload Handler */
-  
-const handleAvatarUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-dispatch(updateAvatar(file));
-};
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    dispatch(updateAvatar(file));
+  };
 
   const themeColor = ROLE_THEME[user?.role]?.color || "#4fc3f7";
   const dashboardMeta = ROLE_DASHBOARD[user?.role];
@@ -192,6 +193,7 @@ dispatch(updateAvatar(file));
                   <Nav.Link
                     className={`nav-animated ${isActive("/map") ? "active-link" : ""}`}
                   >
+                    <LocationOnIcon style={{ fontSize: 25, marginRight: 4 }} />
                     Map
                   </Nav.Link>
                 </LinkContainer>
@@ -206,7 +208,6 @@ dispatch(updateAvatar(file));
                     }}
                   >
                     <QrCodeScannerIcon fontSize="medium" />
-
                   </Nav.Link>
                 </LinkContainer>
 

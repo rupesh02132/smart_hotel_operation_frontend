@@ -235,13 +235,13 @@ const HomeScreen = () => {
             />
 
             {/* RATING */}
-            <div>
+            {/* <div>
               <p className="text-xs text-yellow-300 mb-1">Min Rating</p>
               <Rating
                 value={rating}
                 onChange={(e, v) => setRating(v)}
               />
-            </div>
+            </div> */}
 
             {/* VOICE */}
             <button

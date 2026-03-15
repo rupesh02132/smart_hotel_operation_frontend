@@ -239,3 +239,5 @@ html { scroll-behavior: smooth; }
   focus:outline-none focus:ring-2 focus:ring-gray-800 
   focus:border-transparent transition-all duration-200;
 }
+
+/* for user dashboard */
