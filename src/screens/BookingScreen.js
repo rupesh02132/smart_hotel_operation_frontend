@@ -4,14 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-
+import SimilarRoomsSlider from "../components/SimilarRoomsSlider";
 import { getRoomById } from "../state/room/Action";
 import { createBooking } from "../state/booking/Action";
 import { createPayment } from "../state/Payment/Action";
+import {getListingReviews} from "../state/review/Action";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import CollapsibleReviewSection from "../components/CollapsibleReviewSection";
 import Carousel from "react-bootstrap/Carousel";
 
 import {
@@ -20,10 +21,12 @@ import {
   FaHotel,
   FaCheckCircle,
 } from "react-icons/fa";
+import {getListingById} from "../state/listing/Action";
 
 const BookingScreen = () => {
   const { roomId } = useParams();
   const dispatch = useDispatch();
+  console.log("Room ID:", roomId);
 
   /* ============================
      ✅ ROOM DETAILS REDUX SAFE
@@ -34,11 +37,16 @@ const BookingScreen = () => {
 
   const { room, loading, error } = roomDetails;
 
+  const {listing} = useSelector((state) => state.listings || {});
+
+ const listingId = room?.listing;
+
   /* ============================
      ✅ AUTH SAFE
   ============================ */
   const auth = useSelector((state) => state.auth || {});
   const jwt = auth.jwt;
+  console.log("Auth State:", auth);
 
   /* ============================
      FORM STATE
@@ -50,9 +58,16 @@ const BookingScreen = () => {
   /* ============================
      FETCH ROOM DETAILS
   ============================ */
-  useEffect(() => {
-    if (roomId) dispatch(getRoomById(roomId));
-  }, [dispatch, roomId]);
+ useEffect(() => {
+  if (listingId) {
+    dispatch(getListingById(listingId));
+    dispatch(getListingReviews(listingId));
+  }
+
+  if (roomId) {
+    dispatch(getRoomById(roomId));
+  }
+}, [dispatch, roomId, listingId]);
 
   /* ============================
      PRICE DISPLAY ONLY (UI)
@@ -94,7 +109,7 @@ const BookingScreen = () => {
         })
       );
 
-      dispatch(createPayment(booking._id));
+      dispatch(createPayment(booking?._id));
     } catch (err) {
       alert(err.message || "Booking Failed");
     }
@@ -288,6 +303,30 @@ const BookingScreen = () => {
           </form>
         </div>
       </div>
+      {/* ==============================
+   ⭐ REVIEW SECTION
+================================ */}
+<div className="max-w-7xl mx-auto mt-20 space-y-10">
+
+  <div className="bg-white/5  rounded-3xl p-6 shadow-xl">
+
+    <h2 className="text-3xl font-extrabold mb-1">
+      Guest Reviews
+    </h2>
+
+    {/* ⭐ REVIEW FORM */}
+    <CollapsibleReviewSection listingId={room?.listing} />
+
+    {/* ⭐ REVIEW LIST */}
+   
+  </div>
+
+  {/* ==============================
+     ⭐ SIMILAR ROOMS
+  ================================= */}
+  <SimilarRoomsSlider rooms={listing?.rooms} />
+
+</div>
     </div>
   );
 };

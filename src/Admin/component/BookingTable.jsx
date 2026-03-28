@@ -37,7 +37,9 @@ const OrderTable = () => {
   const dispatch = useDispatch();
   const { bookings } = useSelector((store) => store);
 console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", bookings);
-  const bookingList = bookings?.allBookings || [];
+  const bookingList = useMemo(() => {
+  return bookings?.allBookings || [];
+}, [bookings?.allBookings]);
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -163,8 +165,8 @@ console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", booking
                 const isPending = item.status === "Pending";
                 const isBooked = item.status === "Booked";
                 const isCheckedIn = item.status === "checked-in";
-                const isCheckedOut = item.status === "checked-out";
-                const isCancelled = item.status === "cancelled";
+                // const isCheckedOut = item.status === "checked-out";
+                // const isCancelled = item.status === "cancelled";
 
                 const roomAssigned = Boolean(item.room?._id);
 

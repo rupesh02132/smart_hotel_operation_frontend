@@ -31,7 +31,7 @@ const BookingDetailsScreen = () => {
   const { booking, loading, error } = useSelector(
     (state) => state.bookings
   );
-
+console.log("🚀 ~ file: BookingDetailsScreen.jsx:24 ~ BookingDetailsScreen ~ booking:", booking);
   /* =========================
      FETCH BOOKING
   ========================= */
@@ -165,7 +165,11 @@ const BookingDetailsScreen = () => {
             <BookingStatusTimeline status={booking.status} />
 
             <Section title="Stay Summary">
-              <Info label="Booking ID" value={booking._id} />
+              <Info
+                label="Booking ID"
+                value={booking._id}
+                className="uppercase"
+              />
               <Info label="Stay Status" value={stayStatus} highlight />
               <Info label="Check-in" value={formatDate(booking.checkIn)} />
               <Info label="Check-out" value={formatDate(booking.checkOut)} />

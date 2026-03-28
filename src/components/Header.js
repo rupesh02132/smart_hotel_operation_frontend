@@ -3,7 +3,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, getUser, updateAvatar } from "../state/auth/Action";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
@@ -12,7 +12,6 @@ import { Box, Avatar, IconButton, Tooltip } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import UploadIcon from "@mui/icons-material/Upload";
-import { FaMapMarkedAlt } from "react-icons/fa";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 /* ======================
    CONFIG MAPS
@@ -71,8 +70,8 @@ const Header = () => {
   const user = auth?.user?.user;
   console.log("User... Role:", auth);
 
-  const [notifications, setNotifications] = useState([]);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { notification } = useSelector((state) => state);
+  console.log("Notifications from Redux:", notification);
 
   /* 🔥 Auto-hydrate user */
   useEffect(() => {
@@ -89,16 +88,8 @@ const Header = () => {
       auth: { token: localStorage.getItem("jwt") },
     });
 
-    socket.on("notification", (data) => {
-      setNotifications((prev) => [data, ...prev]);
-    });
-
     return () => socket.disconnect();
   }, [user]);
-
-  const handleNotificationClick = (notification) => {
-    navigate("/notifications");
-  };
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -265,33 +256,32 @@ const Header = () => {
 
                 {/* 🔔 NOTIFICATION BELL */}
                 {user && (
-                  <NavDropdown
-                    onClick={handleNotificationClick}
-                    align="end"
-                    show={notificationsOpen}
-                    onToggle={() => setNotificationsOpen(!notificationsOpen)}
-                    title={
-                      <Tooltip title="Notifications">
-                        <IconButton size="small">
-                          <NotificationsIcon sx={{ color: "white" }} />
-                          {notifications.length > 0 && (
-                            <span className="notification-dot" />
-                          )}
-                        </IconButton>
-                      </Tooltip>
-                    }
-                    menuVariant="dark"
-                  >
-                    {notifications.length === 0 ? (
-                      <NavDropdown.Item>No new notifications</NavDropdown.Item>
-                    ) : (
-                      notifications.map((n, i) => (
-                        <NavDropdown.Item key={i}>
-                          {n.message || n.text}
-                        </NavDropdown.Item>
-                      ))
-                    )}
-                  </NavDropdown>
+                  <Tooltip title="Notifications">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        navigate("/notifications");
+
+                        // 🔥 CLOSE MOBILE NAVBAR
+                        const toggle =
+                          document.querySelector(".navbar-toggler");
+                        if (toggle && window.innerWidth < 992) {
+                          toggle.click();
+                        }
+                      }}
+                      sx={{ position: "relative" }}
+                    >
+                      <NotificationsIcon sx={{ color: "white" }} />
+
+                      {notification?.notifications?.length > 0 && (
+                        <span className="notification-count">
+                          {notification.notifications.length > 9
+                            ? "9+"
+                            : notification.notifications.length}
+                        </span>
+                      )}
+                    </IconButton>
+                  </Tooltip>
                 )}
 
                 {/* 👤 USER AVATAR DROPDOWN */}

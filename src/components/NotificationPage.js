@@ -1,5 +1,14 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import Skeleton from "@mui/material/Skeleton";
+
+import {
+  getMyNotifications,
+  markNotificationRead,
+  deleteNotification,
+} from "../state/notification/Action";
+
 import {
   FaBell,
   FaCheckCircle,
@@ -11,60 +20,25 @@ import {
 
 const NotificationPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  /* Mock Notifications (Replace with Redux later) */
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "booking",
-      title: "Booking Confirmed",
-      message: "Your Deluxe Room at Taj Hotel is confirmed.",
-      time: "2 mins ago",
-      read: false,
-      link: "/booking/123",
-    },
-    {
-      id: 2,
-      type: "payment",
-      title: "Payment Successful",
-      message: "Payment of ₹4500 received.",
-      time: "10 mins ago",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "hotel",
-      title: "New Hotel Added",
-      message: "A new hotel in Chennai is available.",
-      time: "1 hour ago",
-      read: true,
-      link: "/listings",
-    },
-  ]);
+  const { notifications, loading } = useSelector(
+    (s) => s.notification
+  );
 
-  /* Mark Read */
-  const markRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      )
-    );
-  };
+  useEffect(() => {
+    dispatch(getMyNotifications());
+  }, [dispatch]);
 
-  /* Delete Notification */
-  const deleteNotification = (id) => {
-    setNotifications((prev) =>
-      prev.filter((n) => n.id !== id)
-    );
-  };
+  const markRead = (id) => dispatch(markNotificationRead(id));
+  const removeNotification = (id) =>
+    dispatch(deleteNotification(id));
 
-  /* Open Notification */
   const openNotification = (n) => {
-    markRead(n.id);
+    markRead(n._id);
     if (n.link) navigate(n.link);
   };
 
-  /* Icon by type */
   const getIcon = (type) => {
     switch (type) {
       case "booking":
@@ -78,67 +52,99 @@ const NotificationPage = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-100 p-4 sm:p-6">
+  const formatTime = (date) => {
+    const diff = (Date.now() - new Date(date)) / 1000;
+    if (diff < 60) return "Just now";
+    if (diff < 3600)
+      return Math.floor(diff / 60) + " mins ago";
+    if (diff < 86400)
+      return Math.floor(diff / 3600) + " hrs ago";
+    return new Date(date).toLocaleDateString();
+  };
 
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-6">
-        <FaBell className="text-green-600 text-2xl" />
-        <h1 className="text-2xl font-bold text-gray-800">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4 sm:p-8">
+
+      {/* ⭐ HEADER */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-green-100 text-green-600 p-3 rounded-xl shadow">
+          <FaBell size={22} />
+        </div>
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           Notifications
         </h1>
       </div>
 
-      {/* NOTIFICATION LIST */}
-      <div className="space-y-3">
+      {/* ⭐ LIST */}
+      <div className="max-w-3xl mx-auto space-y-4">
 
-        {notifications.length === 0 && (
-          <p className="text-center text-gray-500">
-            No notifications
-          </p>
+        {loading &&
+          Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              variant="rectangular"
+              height={80}
+              sx={{ borderRadius: 3 }}
+            />
+          ))}
+
+        {!loading && notifications.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center shadow">
+            <FaBell className="mx-auto text-gray-300 text-5xl mb-3" />
+            <p className="text-gray-500 font-semibold">
+              No notifications yet
+            </p>
+          </div>
         )}
 
         {notifications.map((n) => (
           <div
-            key={n.id}
-            className={`flex items-start justify-between gap-3 p-4 rounded-xl shadow-sm cursor-pointer transition ${
-              n.read
-                ? "bg-white"
-                : "bg-green-50 border border-green-200"
-            }`}
+            key={n._id}
             onClick={() => openNotification(n)}
+            className={`relative flex gap-4 p-5 rounded-2xl cursor-pointer 
+            backdrop-blur bg-white/70 shadow-md hover:shadow-xl 
+            transition-all duration-300 border
+            ${
+              n.read
+                ? "border-transparent"
+                : "border-green-400"
+            }`}
           >
+            {/* unread strip */}
+            {!n.read && (
+              <div className="absolute left-0 top-0 h-full w-1 bg-green-500 rounded-l-2xl" />
+            )}
 
-            {/* LEFT ICON */}
-            <div className="text-green-600 text-xl mt-1">
+            {/* icon circle */}
+            <div className="flex items-center justify-center min-w-[46px] h-[46px] rounded-xl bg-green-100 text-green-600 text-xl shadow-inner">
               {getIcon(n.type)}
             </div>
 
-            {/* CONTENT */}
+            {/* content */}
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-800">
+              <h3 className="font-bold text-gray-800 text-[15px]">
                 {n.title}
               </h3>
 
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 mt-[2px]">
                 {n.message}
               </p>
 
               <p className="text-xs text-gray-400 mt-1">
-                {n.time}
+                {formatTime(n.createdAt)}
               </p>
             </div>
 
-            {/* ACTIONS */}
-            <div className="flex flex-col gap-2">
+            {/* actions */}
+            <div className="flex flex-col gap-3">
 
               {!n.read && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    markRead(n.id);
+                    markRead(n._id);
                   }}
-                  className="text-green-600 hover:text-green-700"
+                  className="text-green-600 hover:scale-110 transition"
                 >
                   <FaCheckCircle />
                 </button>
@@ -147,9 +153,9 @@ const NotificationPage = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteNotification(n.id);
+                  removeNotification(n._id);
                 }}
-                className="text-red-500 hover:text-red-600"
+                className="text-red-500 hover:scale-110 transition"
               >
                 <FaTrash />
               </button>

@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllListings,
   deleteListing,
-  updateListing,
 } from "../../state/listing/Action";
 import { useNavigate } from "react-router-dom";
+
 import {
   Avatar,
   Button,
@@ -32,12 +32,12 @@ import { saveAs } from "file-saver";
 
 const ListingTable = () => {
   const dispatch = useDispatch();
-const navigate = useNavigate();
-  const listings = useSelector((store) => store.listings?.listings || []);
-  console.log(
-    "🚀 ~ file: ListingTable.jsx:28 ~ ListingTable ~ listings:",
-    listings,
+  const navigate = useNavigate();
+
+  const listings = useSelector(
+    (store) => store.listings?.listings || []
   );
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [cityFilter, setCityFilter] = useState("All");
@@ -50,9 +50,6 @@ const navigate = useNavigate();
     dispatch(getAllListings({}));
   }, [dispatch]);
 
-  /* ============================
-     FILTERING
-  ============================ */
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
       const matchSearch = item.title
@@ -60,85 +57,86 @@ const navigate = useNavigate();
         .includes(search.toLowerCase());
 
       const matchCategory =
-        categoryFilter === "All" || item.category === categoryFilter;
+        categoryFilter === "All" ||
+        item.category === categoryFilter;
 
-      const matchCity = cityFilter === "All" || item.city === cityFilter;
+      const matchCity =
+        cityFilter === "All" || item.city === cityFilter;
 
       return matchSearch && matchCategory && matchCity;
     });
   }, [listings, search, categoryFilter, cityFilter]);
 
-  const totalPages = Math.ceil(filteredListings.length / rowsPerPage);
+  const totalPages = Math.ceil(
+    filteredListings.length / rowsPerPage
+  );
 
   const paginatedListings = filteredListings.slice(
     (page - 1) * rowsPerPage,
-    page * rowsPerPage,
+    page * rowsPerPage
   );
 
-  /* ============================
-     DELETE
-  ============================ */
   const handleDeleteConfirm = () => {
     dispatch(deleteListing(confirmDelete));
     setConfirmDelete(null);
   };
 
-  /* ============================
-     EXPORT TO EXCEL
-  ============================ */
   const exportToExcel = () => {
     const data = filteredListings.map((l) => ({
       Title: l.title,
       City: l.city,
       Category: l.category,
       Country: l.country,
-      DemandScore: l.demandScore,
-      Multiplier: l.seasonalMultiplier,
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Listings");
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Listings");
 
-    const buffer = XLSX.write(workbook, {
+    const buffer = XLSX.write(wb, {
       bookType: "xlsx",
       type: "array",
     });
 
-    const blob = new Blob([buffer], {
-      type: "application/octet-stream",
-    });
-
+    const blob = new Blob([buffer]);
     saveAs(blob, "Listings_Report.xlsx");
   };
 
-  const uniqueCategories = ["All", ...new Set(listings.map((l) => l.category))];
+  const uniqueCategories = [
+    "All",
+    ...new Set(listings.map((l) => l.category)),
+  ];
 
-  const uniqueCities = ["All", ...new Set(listings.map((l) => l.city))];
+  const uniqueCities = [
+    "All",
+    ...new Set(listings.map((l) => l.city)),
+  ];
 
   return (
-    <div className="px-4 py-4">
-      <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
+    <div className="p-3 sm:p-5">
+      <Card className="rounded-2xl shadow-xl">
         <CardHeader
           title="Listing Management"
-          sx={{ textAlign: "center", fontWeight: "bold" }}
+          className="text-center font-bold"
         />
 
-        {/* FILTER CONTROLS */}
-        <div
-          style={{ padding: 16, display: "flex", gap: 10, flexWrap: "wrap" }}
-        >
+        {/* ⭐ FILTERS */}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 px-4 pb-4">
           <TextField
             label="Search Title"
             size="small"
+            fullWidth
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
           <Select
             size="small"
+            fullWidth
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) =>
+              setCategoryFilter(e.target.value)
+            }
           >
             {uniqueCategories.map((cat) => (
               <MenuItem key={cat} value={cat}>
@@ -149,8 +147,11 @@ const navigate = useNavigate();
 
           <Select
             size="small"
+            fullWidth
             value={cityFilter}
-            onChange={(e) => setCityFilter(e.target.value)}
+            onChange={(e) =>
+              setCityFilter(e.target.value)
+            }
           >
             {uniqueCities.map((city) => (
               <MenuItem key={city} value={city}>
@@ -159,21 +160,41 @@ const navigate = useNavigate();
             ))}
           </Select>
 
-          <Button variant="contained" onClick={exportToExcel}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={exportToExcel}
+          >
             Export Excel
           </Button>
         </div>
 
-        <TableContainer component={Paper}>
+        {/* ⭐ TABLE SCROLL FIX */}
+        <TableContainer
+          component={Paper}
+          className="overflow-x-auto"
+        >
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell align="center">Image</TableCell>
-                <TableCell align="center">Title</TableCell>
-                <TableCell align="center">City</TableCell>
-                <TableCell align="center">Category</TableCell>
-                <TableCell align="center">Delete</TableCell>
-                <TableCell align="center">Edit</TableCell>
+                <TableCell align="center">
+                  Image
+                </TableCell>
+                <TableCell align="center">
+                  Title
+                </TableCell>
+                <TableCell align="center">
+                  City
+                </TableCell>
+                <TableCell align="center">
+                  Category
+                </TableCell>
+                <TableCell align="center">
+                  Delete
+                </TableCell>
+                <TableCell align="center">
+                  Edit
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -181,26 +202,40 @@ const navigate = useNavigate();
               {paginatedListings.map((item) => (
                 <TableRow
                   key={item._id}
-                  sx={{
-                    "&:hover": { backgroundColor: "#f9fafb" },
-                  }}
+                  hover
                 >
                   <TableCell align="center">
-                    <Avatar alt={item.title} src={item.images?.[0]} />
+                    <Avatar
+                      src={item.images?.[0]}
+                      alt={item.title}
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        margin: "auto",
+                      }}
+                    />
                   </TableCell>
 
-                  <TableCell align="center">{item.title}</TableCell>
+                  <TableCell align="center">
+                    {item.title}
+                  </TableCell>
 
-                  <TableCell align="center">{item.city}</TableCell>
+                  <TableCell align="center">
+                    {item.city}
+                  </TableCell>
 
-                  <TableCell align="center">{item.category}</TableCell>
+                  <TableCell align="center">
+                    {item.category}
+                  </TableCell>
 
                   <TableCell align="center">
                     <Button
                       color="error"
                       variant="contained"
                       size="small"
-                      onClick={() => setConfirmDelete(item._id)}
+                      onClick={() =>
+                        setConfirmDelete(item._id)
+                      }
                     >
                       Delete
                     </Button>
@@ -210,9 +245,10 @@ const navigate = useNavigate();
                     <Button
                       variant="contained"
                       size="small"
-                      color="primary"
                       onClick={() =>
-                        navigate(`/admin/listing/edit/${item._id}`)
+                        navigate(
+                          `/admin/listing/edit/${item._id}`
+                        )
                       }
                     >
                       Edit
@@ -224,32 +260,56 @@ const navigate = useNavigate();
           </Table>
         </TableContainer>
 
-        {/* PAGINATION */}
-        <div style={{ padding: 16, textAlign: "center" }}>
-          <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+        {/* ⭐ PAGINATION */}
+        <div className="flex flex-wrap justify-center items-center gap-3 p-4">
+          <Button
+            disabled={page === 1}
+            onClick={() =>
+              setPage((p) => p - 1)
+            }
+          >
             Prev
           </Button>
-          <span style={{ margin: "0 10px" }}>
+
+          <span className="text-sm font-semibold">
             Page {page} of {totalPages || 1}
           </span>
+
           <Button
             disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() =>
+              setPage((p) => p + 1)
+            }
           >
             Next
           </Button>
         </div>
       </Card>
 
-      {/* DELETE CONFIRMATION */}
-      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+      {/* ⭐ DELETE DIALOG */}
+      <Dialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+      >
+        <DialogTitle>
+          Confirm Delete
+        </DialogTitle>
+
         <DialogContent>
           Are you sure you want to delete this listing?
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
+          <Button
+            onClick={() => setConfirmDelete(null)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="error"
+            onClick={handleDeleteConfirm}
+          >
             Delete
           </Button>
         </DialogActions>

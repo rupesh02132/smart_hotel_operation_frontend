@@ -23,7 +23,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 import HotelIcon from "@mui/icons-material/Hotel";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 

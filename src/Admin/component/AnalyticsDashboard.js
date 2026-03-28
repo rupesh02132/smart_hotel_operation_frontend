@@ -52,7 +52,7 @@ const AnalyticsDashboard = () => {
     });
 
     return () => socket.disconnect();
-  }, [dispatch]);
+  }, [dispatch, SOCKET_URL]);
 
   /* ===============================
      SAFE DATA FORMAT (NO HOOK ERROR)

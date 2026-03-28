@@ -1,9 +1,5 @@
-
 import { api } from "../../Admin/config/apiConfig";
 import * as types from "./ActionType";
-
-
-
 
 export const searchRooms = (filters) => async (dispatch) => {
   try {
@@ -35,21 +31,18 @@ export const searchRooms = (filters) => async (dispatch) => {
     });
 
     const { data } = await api.get(
-      `/api/rooms/search?${queryParams.toString()}`
+      `/api/rooms/search?${queryParams.toString()}`,
     );
 
     dispatch({
       type: types.ROOM_SEARCH_SUCCESS,
       payload: data,
     });
-
   } catch (error) {
     dispatch({
       type: types.ROOM_SEARCH_FAIL,
       payload:
-        error.response?.data?.message ||
-        error.message ||
-        "Room search failed",
+        error.response?.data?.message || error.message || "Room search failed",
     });
   }
 };
@@ -200,9 +193,35 @@ export const markRoomCleaned = (roomId) => async (dispatch) => {
   }
 };
 
-export const updateRoomStatus = (roomId, status) => async (dispatch) => {
+export const updateRoomStatus = (roomId, statusInput) => async (dispatch) => {
   try {
-    dispatch({ type: types.ROOM_UPDATE_STATUS_REQUEST });
+    dispatch({
+      type: types.ROOM_UPDATE_STATUS_REQUEST,
+    });
+
+    /* =========================
+         NORMALIZE STATUS
+      ========================== */
+
+    let status = statusInput;
+
+    // if full room object accidentally passed
+    if (typeof statusInput === "object") {
+      status = statusInput.status;
+    }
+
+    // trim safety
+    if (typeof status === "string") {
+      status = status.trim();
+    }
+
+    if (!status) {
+      throw new Error("Status not provided");
+    }
+
+    /* =========================
+         API CALL
+      ========================== */
 
     const { data } = await api.put(`/api/rooms/${roomId}/status`, { status });
 

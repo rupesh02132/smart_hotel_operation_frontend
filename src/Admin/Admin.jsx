@@ -35,13 +35,14 @@ import { Routes, Route } from "react-router-dom";
 
 /* Screens */
 import Dashboard from "../Admin/component/AdminDashboard";
-import CreateListingForm from "../Admin/component/CreateListingForm";
+
 import BookingTable from "../Admin/component/BookingTable";
 import ListingTable from "../Admin/component/ListingTable";
 import RoomTable from "../Admin/component/RoomTable";
 import CustomerTable from "./component/CustomerTable";
 import HostBookingTable from "./component/HostBookingTable";
 import AdminRegisterScreen from "./component/AdminRegisterScreen";
+import NotificationPage from "../components/NotificationPage";
 
 /* Smart Hotel */
 import AnalyticsDashboard from "./component/AnalyticsDashboard";
@@ -56,7 +57,7 @@ import EditListingScreen from "../screens/EditListingScreen";
 import CreateRoomScreen from "../screens/CreateRoomScreen";
 import HotelRoomTable from "./component/HotelRoomTable";
 import EditRoomScreen from "../screens/EditRoomScreen";
-
+import RoomStatusChange from "./component/RoomStatusChange";
 /* Sidebar Width */
 const drawerWidth = 260;
 
@@ -288,6 +289,8 @@ const AdminLayout = () => {
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/rooms/live" element={<LiveRoomStatus />} />
             <Route path="/housekeeping" element={<HousekeepingScreen />} />
+            <Route path="/notifications" element={<NotificationPage />} />
+            <Route path="/rooms/:roomId/status" element={<RoomStatusChange />} />
 
         
           </Routes>

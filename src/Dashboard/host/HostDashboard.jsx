@@ -83,26 +83,34 @@ const HostDashboard = () => {
      SOCKET LIVE EVENTS
   ================================ */
   useEffect(() => {
-    socket.on("newBooking", (data) => {
-      setNotifications((prev) => [
-        `📌 New Booking: Room ${data.roomNumber} booked (₹${data.amount})`,
-        ...prev,
-      ]);
+  if (!socket) return;
 
-      dispatch(getHostEarningsAction());
-    });
+  const bookingHandler = (data) => {
+    setNotifications((prev) => [
+      `📌 New Booking: Room ${data.roomNumber} booked (₹${data.amount})`,
+      ...prev,
+    ]);
 
-    socket.on("housekeepingUpdated", (data) => {
-      setNotifications((prev) => [
-        `🧹 Room ${data.roomNumber} is now ${data.status}`,
-        ...prev,
-      ]);
+    dispatch(getHostEarningsAction());
+  };
 
-      dispatch(getHostRoomStatusAction());
-    });
+  const housekeepingHandler = (data) => {
+    setNotifications((prev) => [
+      `🧹 Room ${data.roomNumber} is now ${data.status}`,
+      ...prev,
+    ]);
 
-    return () => socket.disconnect();
-  }, [dispatch]);
+    dispatch(getHostRoomStatusAction());
+  };
+
+  socket.on("newBooking", bookingHandler);
+  socket.on("housekeepingUpdated", housekeepingHandler);
+
+  return () => {
+    socket.off("newBooking", bookingHandler);
+    socket.off("housekeepingUpdated", housekeepingHandler);
+  };
+}, [dispatch, socket]);
 
   /* ================================
      DASHBOARD STATS

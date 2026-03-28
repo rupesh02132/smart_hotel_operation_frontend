@@ -25,13 +25,11 @@ const HotelRoomTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const listingState = useSelector(
-    (store) => store.listings || {}
-  );
+  const listingState = useSelector((store) => store.listings || {});
 
-  const hotels = Array.isArray(listingState.listings)
-    ? listingState.listings
-    : [];
+  const hotels = useMemo(() => {
+    return Array.isArray(listingState.listings) ? listingState.listings : [];
+  }, [listingState.listings]);
 
   const loading = listingState.loading;
 
@@ -48,9 +46,7 @@ const HotelRoomTable = () => {
     if (!searchCode) return hotels;
 
     return hotels.filter((hotel) =>
-      hotel.hotelcode
-        ?.toLowerCase()
-        .includes(searchCode.toLowerCase())
+      hotel.hotelcode?.toLowerCase().includes(searchCode.toLowerCase()),
     );
   }, [hotels, searchCode]);
 
@@ -100,8 +96,7 @@ const HotelRoomTable = () => {
       sx={{
         p: { xs: 2, md: 5 },
         minHeight: "100vh",
-        background:
-          "linear-gradient(180deg,#f9fbfd 0%,#eef2f7 100%)",
+        background: "linear-gradient(180deg,#f9fbfd 0%,#eef2f7 100%)",
       }}
     >
       {/* HEADER */}
@@ -114,10 +109,7 @@ const HotelRoomTable = () => {
           gap: 2,
         }}
       >
-        <Typography
-          variant="h4"
-          fontWeight={800}
-        >
+        <Typography variant="h4" fontWeight={800}>
           Elite Room Management
         </Typography>
 
@@ -140,16 +132,14 @@ const HotelRoomTable = () => {
               mb: 5,
               borderRadius: 4,
               overflow: "hidden",
-              boxShadow:
-                "0 12px 40px rgba(0,0,0,0.06)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
             }}
           >
             {/* HOTEL HEADER */}
             <Box
               sx={{
                 p: { xs: 3, md: 4 },
-                background:
-                  "linear-gradient(135deg,#0f2027,#203a43,#2c5364)",
+                background: "linear-gradient(135deg,#0f2027,#203a43,#2c5364)",
                 color: "#fff",
                 display: "flex",
                 flexDirection: { xs: "column", md: "row" },
@@ -178,9 +168,7 @@ const HotelRoomTable = () => {
                   fontWeight: 700,
                 }}
                 onClick={() =>
-                  navigate(
-                    `/admin/hotels/${hotel._id}/rooms/create`
-                  )
+                  navigate(`/admin/hotels/${hotel._id}/rooms/create`)
                 }
               >
                 + Add Room
@@ -197,15 +185,9 @@ const HotelRoomTable = () => {
                 background: "#f4f7fb",
               }}
             >
-              <Typography fontWeight={600}>
-                Total: {stats.total}
-              </Typography>
-              <Typography color="primary">
-                Ready: {stats.ready}
-              </Typography>
-              <Typography color="error">
-                Occupied: {stats.occupied}
-              </Typography>
+              <Typography fontWeight={600}>Total: {stats.total}</Typography>
+              <Typography color="primary">Ready: {stats.ready}</Typography>
+              <Typography color="error">Occupied: {stats.occupied}</Typography>
               <Typography color="warning.main">
                 Maintenance: {stats.maintenance}
               </Typography>
@@ -218,23 +200,14 @@ const HotelRoomTable = () => {
               <Grid container spacing={3}>
                 {(hotel.rooms || []).map((room) => {
                   const canModify =
-                    room.status === "Ready" ||
-                    room.status === "Vacant";
+                    room.status === "Ready" || room.status === "Vacant";
 
                   return (
-                    <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      lg={3}
-                      key={room._id}
-                    >
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={room._id}>
                       <Card
                         sx={{
                           borderRadius: 4,
-                          boxShadow:
-                            "0 8px 30px rgba(0,0,0,0.05)",
+                          boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
                           transition: "all 0.3s ease",
                           "&:hover": {
                             transform: "translateY(-6px)",
@@ -258,9 +231,7 @@ const HotelRoomTable = () => {
 
                           <Chip
                             label={room.status}
-                            color={getStatusColor(
-                              room.status
-                            )}
+                            color={getStatusColor(room.status)}
                             size="small"
                             sx={{ mt: 1 }}
                           />
@@ -277,9 +248,7 @@ const HotelRoomTable = () => {
                               variant="outlined"
                               disabled={!canModify}
                               onClick={() =>
-                                navigate(
-                                  `/admin/rooms/${room._id}/edit`
-                                )
+                                navigate(`/admin/rooms/${room._id}/edit`)
                               }
                             >
                               Edit
@@ -290,13 +259,31 @@ const HotelRoomTable = () => {
                               variant="outlined"
                               color="error"
                               disabled={!canModify}
-                              onClick={() =>
-                                setConfirmDelete(
-                                  room._id
-                                )
-                              }
+                              onClick={() => setConfirmDelete(room._id)}
                             >
                               Delete
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="primary"
+                              disabled={!canModify}
+                              onClick={() =>
+                                navigate(`/admin/rooms/${room._id}/status`)
+                              }
+                              sx={{
+                                borderRadius: 2,
+                                fontWeight: 600,
+                                textTransform: "none",
+                                px: 1.5,
+                                transition: "0.25s",
+                                "&:hover": {
+                                  transform: "translateY(-2px)",
+                                  boxShadow: "0 6px 12px rgba(0,0,0,0.15)",
+                                },
+                              }}
+                            >
+                              Room Status
                             </Button>
                           </Box>
                         </Box>
@@ -311,22 +298,14 @@ const HotelRoomTable = () => {
       })}
 
       {/* DELETE DIALOG */}
-      <Dialog
-        open={!!confirmDelete}
-        onClose={() => setConfirmDelete(null)}
-      >
+      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
         <DialogTitle>Delete Room</DialogTitle>
         <DialogContent>
           Are you sure you want to delete this room?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>
-            Cancel
-          </Button>
-          <Button
-            color="error"
-            onClick={handleDeleteConfirm}
-          >
+          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
+          <Button color="error" onClick={handleDeleteConfirm}>
             Delete
           </Button>
         </DialogActions>

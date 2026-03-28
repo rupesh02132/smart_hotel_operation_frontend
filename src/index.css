@@ -240,4 +240,145 @@ html { scroll-behavior: smooth; }
   focus:border-transparent transition-all duration-200;
 }
 
-/* for user dashboard */
+/* for home page */
+.voice-float{
+  position:fixed;
+  bottom:22px;
+  right:250px;
+  width:60px;
+  height:60px;
+  border-radius:60%;
+  background:#ffc107;
+  border:none;
+  font-size:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 25px rgba(0,0,0,0.6);
+  z-index:999;
+}
+
+.pulse{
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,193,7,0.7);}
+  70%{box-shadow:0 0 0 18px rgba(255,193,7,0);}
+  100%{box-shadow:0 0 0 0 rgba(255,193,7,0);}
+}
+
+/* for hotel card */
+.listing-card{
+  transition: all 0.25s ease;
+}
+
+.listing-card:active{
+  transform: scale(0.97);
+}
+
+/* better hover for desktop only */
+.listing-card{
+  transition: all 0.25s ease;
+}
+
+.listing-card:active{
+  transform: scale(0.97);
+}
+
+/* better hover for desktop only */
+@media (hover:hover){
+  .listing-card:hover{
+    transform: translateY(-6px);
+  }
+}
+
+
+/* for home animations */
+
+/* ===== SMART PLATFORM MARQUEE ===== */
+
+.smart-track{
+  animation: smartMarquee 28s linear infinite;
+}
+
+/* pause on hover */
+.group:hover .smart-track{
+  animation-play-state: paused;
+}
+
+.smart-pill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 22px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(250,204,21,0.35);
+  color:#facc15;
+  font-weight:600;
+  font-size:14px;
+}
+
+/* tablet */
+@media(min-width:768px){
+  .smart-pill{
+    font-size:16px;
+    padding:10px 28px;
+  }
+}
+
+/* desktop */
+@media(min-width:1280px){
+  .smart-pill{
+    font-size:18px;
+    padding:12px 34px;
+  }
+}
+
+@keyframes smartMarquee{
+  from{
+    transform:translateX(0);
+  }
+  to{
+    transform:translateX(-50%);
+  }
+}
+
+
+
+
+
+
+
+
+
+/* for similer room */
+
+.scrollbar-hide::-webkit-scrollbar{
+  display:none;
+}
+.scrollbar-hide{
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+
+/* for notification */
+.notification-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

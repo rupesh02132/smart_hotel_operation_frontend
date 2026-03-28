@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateRoomStatus, deleteRoom } from "../../state/room/Action";
 import { getAllListings } from "../../state/listing/Action";
 import { generateQr } from "../../state/selfCheck/Action";
 import { getAllBookings } from "../../state/booking/Action";
-import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
 import {
@@ -28,43 +26,39 @@ import {
 
 const RoomTable = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  /* ================= SAFE SELECTORS ================= */
+  const listingState = useSelector((s) => s.listings || {});
+  const bookingState = useSelector((s) => s.bookings || {});
+  const selfCheckState = useSelector((s) => s.selfCheck || {});
 
-  const listingState = useSelector((store) => store.listings || {});
-  const bookingState = useSelector((store) => store.bookings || {});
-  const selfCheckState = useSelector((store) => store.selfCheck || {});
-console.log("listingState", listingState);
-  const hotels = Array.isArray(listingState.listings)
-    ? listingState.listings
-    : [];
+  const hotels = useMemo(
+    () => listingState.listings || [],
+    [listingState.listings]
+  );
 
-  const bookingList = Array.isArray(bookingState.allBookings)
-    ? bookingState.allBookings
-    : [];
+  const bookingList = useMemo(
+    () => bookingState.allBookings || [],
+    [bookingState.allBookings]
+  );
 
-  const { qr, loading: qrLoading, error: qrError } = selfCheckState;
+  const { qr, loading: qrLoading, error: qrError } =
+    selfCheckState;
 
-  /* ================= LOCAL STATE ================= */
+  const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 
   const [searchRoom, setSearchRoom] = useState("");
   const [searchCity, setSearchCity] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [hotelFilter, setHotelFilter] = useState("All");
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(null);
 
-  /* ================= LOAD DATA ================= */
+  const [selectedBooking, setSelectedBooking] =
+    useState(null);
 
-  useEffect(() => {
-    dispatch(getAllListings());
-    dispatch(getAllBookings());
-  }, [dispatch]);
+  const [timeLeft, setTimeLeft] = useState("");
 
-  /* ================= SOCKET REAL-TIME ================= */
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
+
+  /* SOCKET */
+
   useEffect(() => {
     const socket = io(SOCKET_URL);
 
@@ -74,70 +68,96 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
     });
 
     return () => socket.disconnect();
-  }, [dispatch]);
+  }, [dispatch, SOCKET_URL]);
 
-  /* ================= QR COUNTDOWN ================= */
 
-  useEffect(() => {
-    if (!qr?.expiresAt) return;
 
-    const interval = setInterval(() => {
-      const diff = new Date(qr.expiresAt).getTime() - Date.now();
 
-      if (diff <= 0) {
-        setTimeLeft("Expired");
-        clearInterval(interval);
-      } else {
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        setTimeLeft(`${minutes}m ${seconds}s`);
-      }
-    }, 1000);
+ // ⭐ place above component return
+const expiryRef = useRef(null);
 
-    return () => clearInterval(interval);
-  }, [qr?.expiresAt]);
+/* set expiry only when new qr generated */
+useEffect(() => {
+  if (qr?.expiresAt) {
+    expiryRef.current = new Date(qr.expiresAt).getTime();
+  }
+}, [qr?.expiresAt]);
 
-  /* ================= ACTIVE BOOKING MAP ================= */
+/* single global interval */
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (!expiryRef.current) return;
+
+    const diff = expiryRef.current - Date.now();
+
+    if (diff <= 0) {
+      setTimeLeft("Expired");
+      return;
+    }
+
+    const min = Math.floor(diff / 60000);
+    const sec = Math.floor((diff % 60000) / 1000);
+
+    setTimeLeft(
+      `${String(min).padStart(2, "0")}m ${String(sec).padStart(2, "0")}s`
+    );
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  /* ACTIVE BOOKING MAP */
 
   const activeBookingMap = useMemo(() => {
     const map = {};
 
-    bookingList.forEach((booking) => {
-      if (booking.status === "Booked" || booking.status === "Checked-in") {
-        const roomId = booking.room?._id || booking.room;
-        map[roomId] = booking;
+    bookingList.forEach((b) => {
+      if (
+        b.status === "Booked" ||
+        b.status === "checked-in"
+      ) {
+        const id = b.room?._id || b.room;
+        map[id] = b;
       }
     });
 
     return map;
   }, [bookingList]);
 
-  /* ================= FILTER ================= */
+  /* FILTER */
 
   const filteredHotels = useMemo(() => {
     return hotels
       .map((hotel) => {
-        const filteredRooms = (hotel.rooms || []).filter((room) => {
-          const activeBooking = activeBookingMap[room._id];
+        const filteredRooms = (hotel.rooms || []).filter(
+          (room) => {
+            const activeBooking =
+              activeBookingMap[room._id];
 
-          const computedStatus = activeBooking
-            ? activeBooking.status === "Checked-in"
-              ? "Occupied"
-              : "Booked"
-            : room.status;
+            const computedStatus = activeBooking
+              ? activeBooking.status === "checked-in"
+                ? "Occupied"
+                : "Booked"
+              : room.status;
 
-          return (
-            room.roomNumber?.toLowerCase().includes(searchRoom.toLowerCase()) &&
-            (searchCity === "" ||
-              hotel.city?.toLowerCase().includes(searchCity.toLowerCase())) &&
-            (statusFilter === "All" || computedStatus === statusFilter) &&
-            (hotelFilter === "All" || hotel.title === hotelFilter)
-          );
-        });
+            return (
+              room.roomNumber
+                ?.toLowerCase()
+                .includes(searchRoom.toLowerCase()) &&
+              (searchCity === "" ||
+                hotel.city
+                  ?.toLowerCase()
+                  .includes(searchCity.toLowerCase())) &&
+              (statusFilter === "All" ||
+                computedStatus === statusFilter) &&
+              (hotelFilter === "All" ||
+                hotel.title === hotelFilter)
+            );
+          }
+        );
 
-        if (filteredRooms.length) {
+        if (filteredRooms.length)
           return { ...hotel, rooms: filteredRooms };
-        }
 
         return null;
       })
@@ -151,54 +171,43 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
     activeBookingMap,
   ]);
 
-  /* ================= HELPERS ================= */
-
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Occupied":
-        return "error";
-      case "Cleaning":
-        return "warning";
-      case "Available":
-        return "success";
-      case "Booked":
-        return "info";
-      default:
-        return "default";
-    }
+    if (status === "Occupied") return "error";
+    if (status === "Cleaning") return "warning";
+    if (status === "Vacant") return "success";
+    if (status === "Ready") return "success";
+    if (status === "Booked") return "info";
+    if (status === "Blocked") return "default";
+    if (status === "Maintenance") return "disabled";
+    return "default";
   };
 
-  /* ================= MANUAL STATUS UPDATE ================= */
 
-  const handleStatusChange = (room, newStatus) => {
-    dispatch(
-      updateRoomStatus(room._id, {
-        ...room,
-        status: newStatus,
-      }),
-    );
-  };
-
-  /* ================= QR GENERATION ================= */
 
   const handleGenerateQR = (booking) => {
     if (!booking) return;
 
+    let type = null;
+
+    if (
+      booking.status === "Booked" &&
+      booking.isPaid === true
+    )
+      type = "checkin";
+
+    if (booking.status === "checked-in")
+      type = "checkout";
+
+    if (!type) return;
+
     setSelectedBooking(booking._id);
-
-    const qrType = booking.status === "Checked-In" ? "checkout" : "checkin";
-
-    dispatch(generateQr(booking._id, qrType));
+    dispatch(generateQr(booking._id, type));
   };
 
-  const handleDeleteConfirm = () => {
-    dispatch(deleteRoom(confirmDelete));
-    setConfirmDelete(null);
-  };
-
-  const uniqueHotels = ["All", ...new Set(hotels.map((hotel) => hotel.title))];
-
-  /* ================= UI ================= */
+  const uniqueHotels = [
+    "All",
+    ...new Set(hotels.map((h) => h.title)),
+  ];
 
   return (
     <Box sx={{ p: 3 }}>
@@ -209,36 +218,53 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
             label="Search Room"
             size="small"
             value={searchRoom}
-            onChange={(e) => setSearchRoom(e.target.value)}
+            onChange={(e) =>
+              setSearchRoom(e.target.value)
+            }
           />
 
           <TextField
             label="Search City"
             size="small"
             value={searchCity}
-            onChange={(e) => setSearchCity(e.target.value)}
+            onChange={(e) =>
+              setSearchCity(e.target.value)
+            }
           />
 
           <Select
             size="small"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) =>
+              setStatusFilter(e.target.value)
+            }
           >
             <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Vacant">Available</MenuItem>
-            <MenuItem value="Cleaning">Cleaning</MenuItem>
-            <MenuItem value="Occupied">Occupied</MenuItem>
+            <MenuItem value="Vacant">
+              Available
+            </MenuItem>
+            <MenuItem value="Ready">
+              Ready
+            </MenuItem>
+            <MenuItem value="Cleaning">
+              Cleaning
+            </MenuItem>
+            <MenuItem value="Occupied">
+              Occupied
+            </MenuItem>
             <MenuItem value="Booked">Booked</MenuItem>
           </Select>
 
           <Select
             size="small"
             value={hotelFilter}
-            onChange={(e) => setHotelFilter(e.target.value)}
+            onChange={(e) =>
+              setHotelFilter(e.target.value)
+            }
           >
-            {uniqueHotels.map((hotel) => (
-              <MenuItem key={hotel} value={hotel}>
-                {hotel}
+            {uniqueHotels.map((h) => (
+              <MenuItem key={h} value={h}>
+                {h}
               </MenuItem>
             ))}
           </Select>
@@ -248,29 +274,33 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
       {/* HOTELS */}
       {filteredHotels.map((hotel) => (
         <Card key={hotel._id} sx={{ mb: 4 }}>
-          <Box sx={{ p: 2, background: "#4f46e5", color: "#fff" }}>
-            <Typography fontWeight="bold">{hotel.title}</Typography>
-            <Typography variant="body2">{hotel.city}</Typography>
+          <Box sx={{ p: 2, bgcolor: "#4f46e5", color: "#fff" }}>
+            <Typography fontWeight="bold">
+              {hotel.title}
+            </Typography>
+            <Typography variant="body2">
+              {hotel.city}
+            </Typography>
           </Box>
 
           <CardContent>
             <Grid container spacing={3}>
               {hotel.rooms.map((room) => {
-                const activeBooking = activeBookingMap[room._id];
+                const booking =
+                  activeBookingMap[room._id];
 
-                const computedStatus = activeBooking
-                  ? activeBooking.status === "Checked-in"
+                const computedStatus = booking
+                  ? booking.status === "checked-in"
                     ? "Occupied"
                     : "Booked"
                   : room.status;
 
                 const canCheckIn =
-                  activeBooking &&
-                  activeBooking.status === "Booked" &&
-                  activeBooking.isPaid === true;
+                  booking?.status === "Booked" &&
+                  booking?.isPaid === true;
 
                 const canCheckOut =
-                  activeBooking && activeBooking.status === "checked-in";
+                  booking?.status === "checked-in";
 
                 return (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={room._id}>
@@ -279,11 +309,7 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
                         <Avatar
                           src={room.images?.[0]}
                           variant="rounded"
-                          sx={{
-                            width: "100%",
-                            height: 160,
-                            borderRadius: 0,
-                          }}
+                          sx={{ width: "100%", height: 160 }}
                         />
 
                         <Box sx={{ p: 2 }}>
@@ -298,69 +324,28 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
                             sx={{ mt: 1 }}
                           />
 
-                          {/* MANUAL STATUS SELECT */}
-                          <Select
-                            fullWidth
-                            size="small"
-                            value={computedStatus}
-                            sx={{ mt: 2 }}
-                            disabled={!!activeBooking}
-                            onChange={(e) =>
-                              handleStatusChange(room, e.target.value)
-                            }
-                          >
-                            <MenuItem value="Vacant">Available</MenuItem>
-                            <MenuItem value="Cleaning">Cleaning</MenuItem>
-                            <MenuItem value="Occupied">Occupied</MenuItem>
-                            <MenuItem value="Booked">Booked</MenuItem>
-                          </Select>
+                         
 
-                          {/* ACTION BUTTONS */}
-                          <Box
-                            sx={{
-                              mt: 2,
-                              display: "flex",
-                              gap: 1,
-                              flexDirection: {
-                                xs: "column",
-                                sm: "row",
-                              },
-                            }}
-                          >
+                          <Box sx={{ mt: 2 }}>
                             <Button
-                              variant="outlined"
-                              size="small"
-                              onClick={() => navigate(`/edit-room/${room._id}`)}
-                            >
-                              Edit
-                            </Button>
-
-                            <Button
+                              fullWidth
                               variant="contained"
                               size="small"
                               disabled={
-                                !activeBooking || (!canCheckIn && !canCheckOut)
+                                !booking ||
+                                (!canCheckIn && !canCheckOut)
                               }
-                              onClick={() => handleGenerateQR(activeBooking)}
+                              onClick={() =>
+                                handleGenerateQR(booking)
+                              }
                             >
-                              {!activeBooking
+                              {!booking
                                 ? "No Booking"
                                 : canCheckOut
-                                  ? "Checkout QR"
-                                  : canCheckIn
-                                    ? "Check-In QR"
-                                    : activeBooking.isPaid === false
-                                      ? "Payment Pending"
-                                      : "Not Allowed"}
-                            </Button>
-
-                            <Button
-                              variant="outlined"
-                              color="error"
-                              size="small"
-                              onClick={() => setConfirmDelete(room._id)}
-                            >
-                              Delete
+                                ? "Checkout QR"
+                                : canCheckIn
+                                ? "Check-In QR"
+                                : "Not Allowed"}
                             </Button>
                           </Box>
                         </Box>
@@ -381,19 +366,13 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
           {qrLoading && <Typography>Generating...</Typography>}
 
           {qr?.qrImage && (
-            <img
-              src={qr.qrImage}
-              alt="QR"
-              style={{
-                width: "100%",
-                maxWidth: 250,
-                marginTop: 15,
-              }}
-            />
+            <img src={qr.qrImage} alt="QR" style={{ width: 240 }} />
           )}
 
           {timeLeft && (
-            <Typography sx={{ mt: 2 }}>⏳ Expires in: {timeLeft}</Typography>
+            <Typography sx={{ mt: 2 }}>
+              ⏳ Expires in: {timeLeft}
+            </Typography>
           )}
 
           {qrError && (
@@ -404,20 +383,8 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={() => setSelectedBooking(null)}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* DELETE CONFIRM */}
-      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this room?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
-            Delete
+          <Button onClick={() => setSelectedBooking(null)}>
+            Close
           </Button>
         </DialogActions>
       </Dialog>

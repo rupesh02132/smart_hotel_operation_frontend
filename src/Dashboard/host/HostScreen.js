@@ -28,7 +28,7 @@ const HostScreen = () => {
   console.log("hostListings", hostListings);
 
   // Redirect to create page
-  const handleCreate = () => navigate("/host/listings/new");
+  // const handleCreate = () => navigate("/host/listings/new");
 
   // Redirect to edit page
   const handleCardClick = (id) => {

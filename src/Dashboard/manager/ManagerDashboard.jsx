@@ -14,8 +14,13 @@ const ManagerDashboard = () => {
   const { allBookings } = useSelector((s) => s.bookings);
   const { rooms } = useSelector((s) => s.room);
 
-  const bookingList = allBookings || [];
-  const roomList = rooms|| [];
+const bookingList = useMemo(() => {
+  return allBookings || [];
+}, [allBookings]);
+
+const roomList = useMemo(() => {
+  return rooms || [];
+}, [rooms]);
 
   const [notifications, setNotifications] = useState([]);
   const [search, setSearch] = useState("");

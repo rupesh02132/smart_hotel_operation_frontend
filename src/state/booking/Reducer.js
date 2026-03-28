@@ -1,4 +1,4 @@
-import { all } from "axios";
+
 import {
   CREATE_BOOKING_REQUEST,
   CREATE_BOOKING_SUCCESS,

@@ -20,27 +20,30 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
     dispatch(getHousekeepingTasksAction());
   }, [dispatch]);
 
-  useEffect(() => {
-    const socket = socketIOClient(SOCKET_URL);
+useEffect(() => {
+  const socket = socketIOClient(SOCKET_URL, {
+    transports: ["websocket"],
+  });
 
-    
+  socket.emit("joinStaff");
 
-    socket.emit("joinStaff");
+  const taskHandler = (data) => {
+    setNotifications((p) => [
+      `New cleaning task → Room ${data.roomNumber}`,
+      ...p,
+    ]);
+    dispatch(getHousekeepingTasksAction());
+  };
 
-    socket.on("newCleaningTask", (data) => {
-      setNotifications((p) => [
-        `New cleaning task → Room ${data.roomNumber}`,
-        ...p,
-      ]);
-      dispatch(getHousekeepingTasksAction());
-    });
+  socket.on("newCleaningTask", taskHandler);
+  socket.on("roomStatusUpdated", taskHandler);
 
-    socket.on("roomStatusUpdated", () => {
-      dispatch(getHousekeepingTasksAction());
-    });
-
-    return () => socket.disconnect();
-  }, [dispatch]);
+  return () => {
+    socket.off("newCleaningTask", taskHandler);
+    socket.off("roomStatusUpdated", taskHandler);
+    socket.disconnect();
+  };
+}, [dispatch, SOCKET_URL]);
 
   const markCleanHandler = async (id) => {
     await dispatch(markRoomCleaned(id));

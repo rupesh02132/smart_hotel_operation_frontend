@@ -36,7 +36,7 @@ const VerifyOtpScreen = () => {
     error,
     message,
     otpVerified,
-    registerSuccess,
+ 
   } = useSelector((state) => state.auth);
 
   const [otp, setOtp] = useState("");

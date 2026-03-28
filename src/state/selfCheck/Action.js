@@ -19,30 +19,48 @@ import {
 /* =====================================================
    GENERATE QR (ADMIN / STAFF)
 ===================================================== */
-export const generateQr = (bookingId, type = "checkin") => async (dispatch, getState) => {
-  try {
-    dispatch({ type: QR_GENERATE_REQUEST });
+export const generateQr =
+  (bookingId, typeInput = "checkin") =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: QR_GENERATE_REQUEST });
 
-   
+      /* =========================
+         NORMALIZE TYPE
+      ========================== */
 
-    const { data } = await api.post(
-      `/api/qr/generate/${bookingId}`,
-      { type }, // ✅ VERY IMPORTANT
-    );
+      let type = typeInput;
 
-    dispatch({
-      type: QR_GENERATE_SUCCESS,
-      payload: data,
-    });
+      // if object passed → extract
+      if (typeof typeInput === "object") {
+        type = typeInput.type;
+      }
 
-  } catch (error) {
-    dispatch({
-      type: QR_GENERATE_FAIL,
-      payload:
-        error.response?.data?.message || error.message,
-    });
-  }
-};
+      // safety lowercase
+      type = String(type).toLowerCase();
+
+      if (!["checkin", "checkout"].includes(type)) {
+        throw new Error("Invalid QR type sent from UI");
+      }
+
+      const { data } = await api.post(
+        `/api/qr/generate/${bookingId}`,
+        { type }
+      );
+
+      dispatch({
+        type: QR_GENERATE_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: QR_GENERATE_FAIL,
+        payload:
+          error.response?.data?.message ||
+          error.message,
+      });
+    }
+  };
 
 
 export const verifyQr = (token) => async (dispatch) => {

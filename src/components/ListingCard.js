@@ -1,10 +1,9 @@
-import { FaStar, FaHotel } from "react-icons/fa";
+import { FaStar, FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const ListingCard = ({ listing }) => {
   const navigate = useNavigate();
 
-  /* ✅ CLOUDINARY IMAGE */
   const imageSrc =
     listing.images?.length > 0
       ? listing.images[0]
@@ -13,62 +12,135 @@ const ListingCard = ({ listing }) => {
   return (
     <div
       onClick={() => navigate(`/hotel/${listing._id}/rooms`)}
-      className="cursor-pointer group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+      className="
+      group
+      bg-white
+      rounded-2xl
+      overflow-hidden
+      shadow-sm
+      hover:shadow-lg
+      active:scale-[0.98]
+      transition-all duration-300
+      flex flex-col
+      h-full
+      "
     >
-      {/* ================= IMAGE ================= */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* IMAGE */}
+      <div className="relative w-full aspect-[4/3] overflow-hidden">
+
         <img
           src={imageSrc}
-          loading="lazy"
           alt={listing.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="
+          w-full h-full object-cover
+          group-hover:scale-105
+          transition duration-700
+          "
         />
 
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80" />
+        {/* readability gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-        {/* CATEGORY BADGE */}
-        <div className="absolute top-3 left-3 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow">
+        {/* category */}
+        <div className="
+          absolute top-2 left-2
+          bg-white/95
+          text-gray-800
+          text-[10px] sm:text-xs
+          font-semibold
+          px-2.5 py-[3px]
+          rounded-full
+          shadow
+        ">
           {listing.category}
         </div>
 
-        {/* HOVER VIEW ROOMS */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-          <span className="flex items-center gap-2 bg-white text-black font-bold px-5 py-2 rounded-full shadow-xl">
-            <FaHotel />
-            View Rooms
-          </span>
-        </div>
+        {/* rating */}
+        {listing.ratingAvg > 0 && (
+          <div className="
+            absolute bottom-2 left-2
+            flex items-center gap-1
+            bg-yellow-400
+            text-black
+            text-[10px] sm:text-xs
+            font-bold
+            px-2.5 py-[3px]
+            rounded-full
+            shadow
+          ">
+            <FaStar className="text-[9px]" />
+            {listing.ratingAvg.toFixed(1)}
+          </div>
+        )}
+
       </div>
 
-      {/* ================= DETAILS ================= */}
-      <div className="p-4 space-y-2">
-        {/* LOCATION + RATING */}
-        <div className="flex justify-between items-center text-sm text-gray-500">
-          <p className="truncate font-medium">
+      {/* DETAILS */}
+      <div className="p-3 sm:p-4 flex flex-col gap-2 flex-1 cursor-pointer">
+
+        {/* location */}
+        <p className="
+          flex items-center gap-1.5
+          text-[11px] sm:text-sm
+          text-gray-500
+          font-medium
+          truncate
+        ">
+          <FaMapMarkerAlt className="text-gray-400 text-[11px] shrink-0" />
+          <span className="truncate">
             {listing.city}, {listing.country}
-          </p>
+          </span>
+        </p>
 
-          {listing.ratingAvg > 0 && (
-            <div className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-[3px] rounded-full text-xs font-semibold">
-              <FaStar />
-              {listing.ratingAvg.toFixed(1)}
-            </div>
-          )}
-        </div>
-
-        {/* HOTEL TITLE */}
-        <h3 className="text-lg font-extrabold text-gray-800 truncate">
+        {/* title */}
+        <h3 className="
+          text-sm sm:text-base
+          font-bold
+          text-gray-800
+          leading-snug
+          line-clamp-2
+        ">
           {listing.title}
         </h3>
 
-        {/* DESCRIPTION SHORT */}
-        <p className="text-sm text-gray-500 line-clamp-2">
-          {listing.description?.slice(0, 70)}...
+        {/* description */}
+        <p className="
+          text-[11px] sm:text-sm
+          text-gray-500
+          leading-relaxed
+          line-clamp-2
+        ">
+          {listing.description}
         </p>
 
-        {/* AMENITIES */}
- 
+        {/* CTA */}
+        <div className="
+          mt-auto
+          pt-2
+          flex items-center justify-between
+        ">
+          <span className="
+            text-xs sm:text-sm
+            font-semibold
+            text-indigo-600
+            group-hover:underline
+          ">
+            View Rooms →
+          </span>
+
+          <div className="
+            w-7 h-7 sm:w-8 sm:h-8
+            flex items-center justify-center
+            rounded-full
+            bg-gray-100
+            group-hover:bg-indigo-600
+            group-hover:text-white
+            transition
+          ">
+            →
+          </div>
+        </div>
+
       </div>
     </div>
   );

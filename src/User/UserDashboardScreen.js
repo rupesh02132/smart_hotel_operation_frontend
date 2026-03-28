@@ -22,6 +22,7 @@ const UserDashboardScreen = () => {
 
   const { user } = useSelector((s) => s.auth);
   const { booking, loading, error } = useSelector((s) => s.bookings);
+  console.log("booking:", booking);
 
   const userId = user?.user?._id;
   const firstName = user?.user?.firstname || "Guest";
@@ -87,7 +88,7 @@ const UserDashboardScreen = () => {
           {/* COMMANDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             <CommandTile icon={<TravelExplore />} label="Explore" link="/" />
-            <CommandTile icon={<ConfirmationNumber />} label="Bookings" link="/my-bookings" />
+            <CommandTile icon={<ConfirmationNumber />} label="Bookings" link="/mybookings" />
             <CommandTile icon={<AccountCircle />} label="Profile" link="/userProfile" />
           </div>
 

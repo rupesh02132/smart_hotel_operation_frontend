@@ -12,8 +12,14 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-const categories = ["Apartment", "House", "Villa", "Cabin"];
+const categories = [
+  "Budget",
+  "Economy",
+  "Business",
+  "Premium",
+  "Luxury",
+  "Boutique",
+];
 
 const ListingForm = ({ initialData = null, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +28,7 @@ const ListingForm = ({ initialData = null, onSubmit, loading }) => {
     city: "",
     country: "",
     description: "",
-    category: "Apartment",
+    category: "Luxury",
     hotelcode: "",
     amenities: "",
     longitude: "",
