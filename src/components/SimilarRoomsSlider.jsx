@@ -3,11 +3,13 @@ import { FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const SimilarRoomsSlider = ({ rooms = [] }) => {
-  const sliderRef = useRef();
+  const sliderRef = useRef(null);
   const navigate = useNavigate();
 
   const scroll = (dir) => {
     const container = sliderRef.current;
+    if (!container) return;
+
     const width = container.clientWidth;
 
     container.scrollBy({
@@ -16,7 +18,7 @@ const SimilarRoomsSlider = ({ rooms = [] }) => {
     });
   };
 
-  if (!rooms.length) return null;
+  if (!rooms || rooms.length === 0) return null;
 
   return (
     <div className="relative mt-16">
@@ -47,57 +49,63 @@ const SimilarRoomsSlider = ({ rooms = [] }) => {
       {/* ⭐ SLIDER */}
       <div
         ref={sliderRef}
-        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4
-        scrollbar-hide"
+        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
       >
-        {rooms.map((room) => (
-          <div
-            key={room._id}
-            onClick={() =>
-              navigate(`/booking/${room._id}`)
-            }
-            className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]
-            bg-white/10 backdrop-blur-xl border border-white/20
-            rounded-3xl overflow-hidden cursor-pointer
-            hover:scale-105 transition-all duration-300 snap-start"
-          >
-            {/* IMAGE */}
-            <div className="h-48 overflow-hidden">
-              <img
-                src={room.images?.[0]}
-                className="w-full h-full object-cover hover:scale-110 transition"
-              />
-            </div>
+        {rooms.map((room) => {
+          const image =
+            room?.images?.[0] ||
+            "https://via.placeholder.com/400x300?text=No+Room";
 
-            {/* DETAILS */}
-            <div className="p-4 space-y-2">
-
-              <div className="flex justify-between items-center">
-                <p className="font-bold text-white">
-                  {room.roomType}
-                </p>
-
-                {room.ratingAvg && (
-                  <span className="flex items-center gap-1 text-yellow-400 text-sm">
-                    <FaStar /> {room.ratingAvg.toFixed(1)}
-                  </span>
-                )}
+          return (
+            <div
+              key={room._id}
+              onClick={() => navigate(`/booking/${room._id}`)}
+              className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]
+              bg-white/10 backdrop-blur-xl border border-white/20
+              rounded-3xl overflow-hidden cursor-pointer
+              hover:scale-105 transition-all duration-300 snap-start"
+            >
+              {/* IMAGE */}
+              <div className="h-48 overflow-hidden">
+                <img
+                  src={image}
+                  alt={room?.roomType || "Room"}
+                  loading="lazy"
+                  className="w-full h-full object-cover hover:scale-110 transition"
+                />
               </div>
 
-              <p className="text-gray-300 text-sm line-clamp-2">
-                {room.description}
-              </p>
+              {/* DETAILS */}
+              <div className="p-4 space-y-2">
 
-              <p className="text-lg font-extrabold text-yellow-400">
-                ₹{room.basePrice}
-                <span className="text-xs text-gray-400 font-normal">
-                  {" "} / night
-                </span>
-              </p>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-white">
+                    {room?.roomType || "Room"}
+                  </p>
 
+                  {room?.ratingAvg ? (
+                    <span className="flex items-center gap-1 text-yellow-400 text-sm">
+                      <FaStar />
+                      {room.ratingAvg.toFixed(1)}
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="text-gray-300 text-sm line-clamp-2">
+                  {room?.description || "No description available"}
+                </p>
+
+                <p className="text-lg font-extrabold text-yellow-400">
+                  ₹{room?.basePrice ?? "N/A"}
+                  <span className="text-xs text-gray-400 font-normal">
+                    {" "} / night
+                  </span>
+                </p>
+
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
