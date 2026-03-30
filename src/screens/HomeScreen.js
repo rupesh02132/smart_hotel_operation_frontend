@@ -54,7 +54,7 @@ const HomeScreen = () => {
   const [sortBy, setSortBy] = useState("");
   const [checkInDate, setCheckInDate] = useState(null);
   const [mood, setMood] = useState("Browsing");
-  const [listening, setListening] = useState(false);
+
 
   const listingsPerPage = 12;
 
@@ -107,28 +107,21 @@ const HomeScreen = () => {
   }, [listings]);
 
   /* ⭐ Voice search FIX */
-  const startVoiceSearch = () => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const startVoiceSearch = () => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SR) return alert("Voice not supported");
+  if (!SR) return alert("Voice not supported");
 
-    const rec = new SR();
-    rec.lang = "en-US";
-    rec.start();
+  const rec = new SR();
+  rec.lang = "en-US";
+  rec.start();
 
-    setListening(true);
-
-    rec.onresult = (e) => {
-      let text = e.results[0][0].transcript;
-
-      /* ⭐ remove punctuation dot fix */
-      text = text.replace(/[.。]/g, "").trim();
-
-      setSearchCity(text);
-    };
-
-    rec.onend = () => setListening(false);
+  rec.onresult = (e) => {
+    let text = e.results[0][0].transcript;
+    text = text.replace(/[.。]/g, "").trim();
+    setSearchCity(text);
   };
+};
 
   const resetFilters = () => {
     setSearchCity("");
