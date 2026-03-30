@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
-console.log("Socket URL:", SOCKET_URL);
-// export const API_BASE_URL = "https://smarthoteloperation-backend-production.up.railway.app"
+console.log("Socket URL://///", SOCKET_URL);
+// export const API_BASE_URL = "https://smarthotel.up.railway.app";
 export const API_BASE_URL = SOCKET_URL;
 export const api = axios.create({
   baseURL: API_BASE_URL,

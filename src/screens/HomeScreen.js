@@ -320,14 +320,6 @@ const HomeScreen = () => {
             Next
           </button>
         </div>
-
-        {/* floating voice */}
-        <button
-          onClick={startVoiceSearch}
-          className={`voice-float ${listening ? "pulse" : ""}`}
-        >
-          <FaMicrophone />
-        </button>
       </div>
     </LocalizationProvider>
   );

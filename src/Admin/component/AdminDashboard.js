@@ -40,7 +40,7 @@ ChartJS.register(
 );
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
-
+console.log("Socket URL://///", SOCKET_URL);
 
 const AdminDashboardScreen = () => {
   const dispatch = useDispatch();
