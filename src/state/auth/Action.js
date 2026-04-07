@@ -62,7 +62,7 @@ export const register = (userData) => async (dispatch) => {
       type: REGISTER_SUCCESS,
       payload: {
         message: data.message,
-        pendingEmail: userData.email, // still keep Redux copy if needed
+        pendingEmail: userData.email, 
       },
     });
   } catch (error) {

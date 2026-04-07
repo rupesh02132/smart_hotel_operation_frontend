@@ -299,7 +299,7 @@ html { scroll-behavior: smooth; }
 /* ===== SMART PLATFORM MARQUEE ===== */
 
 .smart-track{
-  animation: smartMarquee 28s linear infinite;
+  animation: smartMarquee 15s linear infinite;
 }
 
 /* pause on hover */
@@ -318,7 +318,7 @@ html { scroll-behavior: smooth; }
   border:1px solid rgba(250,204,21,0.35);
   color:#facc15;
   font-weight:600;
-  font-size:14px;
+  font-size:18px;
 }
 
 /* tablet */

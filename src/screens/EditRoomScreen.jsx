@@ -37,7 +37,7 @@ const EditRoomScreen = () => {
 
   const handleUpdate = async (formData) => {
     await dispatch(updateRoom(roomId, formData));
-    navigate("/admin/rooms");
+    navigate("/admin/hotels/rooms");
   };
 
   return (

@@ -214,7 +214,7 @@ const UserProfile = () => {
                   <div className="flex items-center gap-3 mb-6">
                     <div className="h-2 w-2 bg-emerald-500 rounded-full animate-ping"></div>
                     <Typography className="font-bold text-slate-800 uppercase text-xs tracking-widest">
-                      Live Room Status • 402
+                      you are live • on smart hotel App
                     </Typography>
                   </div>
 

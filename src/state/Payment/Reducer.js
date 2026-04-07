@@ -13,6 +13,11 @@ import {
     RAZORPAY_REDIRECT_FAIL,
     RAZORPAY_REDIRECT_RESET,
   } from "./ActionType";
+  import {
+  VERIFY_PAYMENT_REQUEST,
+  VERIFY_PAYMENT_SUCCESS,
+  VERIFY_PAYMENT_FAILURE,
+} from "./ActionType";
   
   const initialState = {
  loading: false,
@@ -142,6 +147,29 @@ import {
 
     case RAZORPAY_REDIRECT_RESET:
       return initialState;
+
+          case VERIFY_PAYMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case VERIFY_PAYMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        error: null,
+      };
+
+    case VERIFY_PAYMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        success: false,
+        error: action.payload,
+      };
   
       default:
         return state;

@@ -37,7 +37,7 @@ const CreateListingScreen = () => {
             underline="hover"
             color="inherit"
             sx={{ cursor: "pointer" }}
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/admin/dashboard")}
           >
             Dashboard
           </Link>

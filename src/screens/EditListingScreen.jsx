@@ -49,10 +49,8 @@ console.log("🚀EditListingScreen.jsx:28 ~ EditListingScreen ~ listing:", listi
     <Box sx={{ minHeight: "100vh", backgroundColor: "#f4f6f8", py: 6 }}>
       <Container maxWidth="xl">
         {/* Breadcrumb */}
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link underline="hover" sx={{ cursor: "pointer" }} onClick={() => navigate("/admin")}>
-            Dashboard
-          </Link>
+        <Breadcrumbs sx={{ mb: 2 }}>
+         
           <Link underline="hover" sx={{ cursor: "pointer" }} onClick={() => navigate("/admin/listings")}>
             Listings
           </Link>

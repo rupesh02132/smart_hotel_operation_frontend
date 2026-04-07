@@ -21,32 +21,30 @@ import {
   UPDATE_AVATAR_REQUEST,
   UPDATE_AVATAR_SUCCESS,
   UPDATE_AVATAR_FAILURE,
-
-    VERIFY_EMAIL_REQUEST,
-    VERIFY_EMAIL_SUCCESS,
-    VERIFY_EMAIL_FAILURE,
-    FORGOT_PASSWORD_REQUEST,
-    FORGOT_PASSWORD_SUCCESS,
-    FORGOT_PASSWORD_FAILURE,
-    RESET_PASSWORD_REQUEST,
-    RESET_PASSWORD_SUCCESS,
-    RESET_PASSWORD_FAILURE,
-    SEND_OTP_REQUEST,
-    SEND_OTP_SUCCESS,
-    SEND_OTP_FAILURE,
-    VERIFY_OTP_REQUEST,
-    VERIFY_OTP_SUCCESS,
-    VERIFY_OTP_FAILURE,
-    GOOGLE_LOGIN_REQUEST,
-    GOOGLE_LOGIN_SUCCESS,
-    GOOGLE_LOGIN_FAILURE,
-    RESEND_OTP_REQUEST,
-    RESEND_OTP_SUCCESS,
-    RESEND_OTP_FAILURE
+  VERIFY_EMAIL_REQUEST,
+  VERIFY_EMAIL_SUCCESS,
+  VERIFY_EMAIL_FAILURE,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_SUCCESS,
+  FORGOT_PASSWORD_FAILURE,
+  RESET_PASSWORD_REQUEST,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAILURE,
+  SEND_OTP_REQUEST,
+  SEND_OTP_SUCCESS,
+  SEND_OTP_FAILURE,
+  VERIFY_OTP_REQUEST,
+  VERIFY_OTP_SUCCESS,
+  VERIFY_OTP_FAILURE,
+  GOOGLE_LOGIN_REQUEST,
+  GOOGLE_LOGIN_SUCCESS,
+  GOOGLE_LOGIN_FAILURE,
+  RESEND_OTP_REQUEST,
+  RESEND_OTP_SUCCESS,
+  RESEND_OTP_FAILURE,
 } from "./ActionType";
 
 const initialState = {
-  
   isLoading: false,
   error: null,
   jwt: null,
@@ -56,18 +54,19 @@ const initialState = {
   success: false,
   otpVerified: false,
   pendingEmail: null,
-
-
+  message: null,
 };
 
 export const authReducer = (state = initialState, action) => {
   switch (action.type) {
+    // ================= BASIC REQUEST =================
     case REGISTER_REQUEST:
     case LOGIN_REQUEST:
     case GET_USER_REQUEST:
     case GET_ALL_USERS_REQUEST:
     case UPDATE_USER_REQUEST:
     case DELETE_USER_REQUEST:
+    case UPDATE_AVATAR_REQUEST:
       return {
         ...state,
         isLoading: true,
@@ -75,172 +74,184 @@ export const authReducer = (state = initialState, action) => {
         success: false,
       };
 
-case REGISTER_SUCCESS:
+    // ================= REGISTER =================
+ case REGISTER_SUCCESS:
   return {
     ...state,
-    jwt: action.payload,
     isLoading: false,
-    error: null,
     success: true,
-     message: action.payload.message,
+    message: action.payload.message,
     pendingEmail: action.payload.pendingEmail, 
   };
+    case REGISTER_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    // ================= LOGIN =================
     case LOGIN_SUCCESS:
       return {
         ...state,
-        jwt: action.payload.jwt,
-         user: action.payload,
         isLoading: false,
-        error: null,
         success: true,
+        user: action.payload,
+        jwt: action.payload.jwt,
       };
 
+    case LOGIN_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    // ================= USER =================
     case GET_USER_SUCCESS:
       return {
         ...state,
         user: action.payload,
         isLoading: false,
-        error: null,
       };
 
+    case GET_USER_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    // ================= USERS =================
     case GET_ALL_USERS_SUCCESS:
       return {
         ...state,
-    
+        users: action.payload,
         isLoading: false,
-        error: null,
-       users: action.payload,
       };
 
+    case GET_ALL_USERS_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    // ================= UPDATE =================
     case UPDATE_USER_SUCCESS:
       return {
         ...state,
         user: action.payload,
         isLoading: false,
-        error: null,
       };
 
-    case DELETE_USER_SUCCESS:
+    case UPDATE_USER_FAILURE:
       return {
         ...state,
         isLoading: false,
-        success: true,
-        users: state.users.filter((user) => user._id !== action.payload),
+        error: action.payload,
       };
 
-    case REGISTER_FAILURE:
-    case LOGIN_FAILURE:
-    case GET_USER_FAILURE:
-    case GET_ALL_USERS_FAILURE:
-    case UPDATE_USER_FAILURE:
+    // ================= DELETE =================
+    case DELETE_USER_SUCCESS:
+      return {
+        ...state,
+        users: state.users.filter((u) => u._id !== action.payload),
+        isLoading: false,
+      };
+
     case DELETE_USER_FAILURE:
       return {
         ...state,
         isLoading: false,
         error: action.payload,
-        success: false,
       };
-// ================= AUTH EXTRA FLOWS =================
 
-// Loading states
-case VERIFY_EMAIL_REQUEST:
-case FORGOT_PASSWORD_REQUEST:
-case RESET_PASSWORD_REQUEST:
-case SEND_OTP_REQUEST:
-case VERIFY_OTP_REQUEST:
-case GOOGLE_LOGIN_REQUEST:
-case RESEND_OTP_REQUEST:
-  return {
-    ...state,
-    isLoading: true,        // 🔥 use isLoading everywhere
-    error: null,
-    message: null,
-  };
-
-// Success states
-case VERIFY_EMAIL_SUCCESS:
-case FORGOT_PASSWORD_SUCCESS:
-case RESET_PASSWORD_SUCCESS:
-case SEND_OTP_SUCCESS:
-case RESEND_OTP_SUCCESS:
-  return {
-    ...state,
-    isLoading: false,
-    success: true,
-    message: action.payload,   // backend sends message string
-  };
-
-// OTP VERIFIED SUCCESS (IMPORTANT)
-case VERIFY_OTP_SUCCESS:
-  return {
-    ...state,
-    isLoading: false,
-    otpVerified: true,         // 🔥 used for redirect after verify
-    message: action.payload,  // "Email verified successfully"
-  };
-
-// Google login success
-case GOOGLE_LOGIN_SUCCESS:
-  return {
-    ...state,
-    isLoading: false,
-    success: true,
-    user: action.payload,
-    jwt: action.payload.jwt,
-    message: "Google login successful",
-  };
-
-// Failure states
-case VERIFY_EMAIL_FAILURE:
-case FORGOT_PASSWORD_FAILURE:
-case RESET_PASSWORD_FAILURE:
-case SEND_OTP_FAILURE:
-case VERIFY_OTP_FAILURE:
-case GOOGLE_LOGIN_FAILURE:
-case RESEND_OTP_FAILURE:
-  return {
-    ...state,
-    isLoading: false,
-    error: action.payload,
-  };
-
-
-   case LOGOUT_SUCCESS:
-  return {
-    user: null,
-    jwt: null,
-    users: [],
-    isLoading: false,
-    error: null,
-    success: false,
-    otpVerified: false,   // 🔥 reset
-    message: null,
-  };
-case "CLEAR_AUTH_MESSAGE":
-  return {
-    ...state,
-    message: null,
-    error: null,
-  };
-
-case UPDATE_AVATAR_REQUEST:
+    // ================= OTP FLOW =================
+    case SEND_OTP_REQUEST:
+    case VERIFY_OTP_REQUEST:
+    case RESEND_OTP_REQUEST:
+    case VERIFY_EMAIL_REQUEST:
+    case FORGOT_PASSWORD_REQUEST:
+    case RESET_PASSWORD_REQUEST:
+    case GOOGLE_LOGIN_REQUEST:
       return {
         ...state,
-        loading: true,
+        isLoading: true,
+        error: null,
+        message: null,
       };
 
+    case SEND_OTP_SUCCESS:
+    case RESEND_OTP_SUCCESS:
+    case VERIFY_EMAIL_SUCCESS:
+    case FORGOT_PASSWORD_SUCCESS:
+    case RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        success: true,
+        message: action.payload,
+      };
+
+    case VERIFY_OTP_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        otpVerified: true,
+        message: action.payload,
+      };
+
+    case VERIFY_OTP_FAILURE:
+    case SEND_OTP_FAILURE:
+    case RESEND_OTP_FAILURE:
+    case VERIFY_EMAIL_FAILURE:
+    case FORGOT_PASSWORD_FAILURE:
+    case RESET_PASSWORD_FAILURE:
+    case GOOGLE_LOGIN_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+    // ================= GOOGLE =================
+    case GOOGLE_LOGIN_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        success: true,
+        user: action.payload,
+        jwt: action.payload.jwt,
+        message: "Google login successful",
+      };
+
+    // ================= AVATAR =================
     case UPDATE_AVATAR_SUCCESS:
       return {
         ...state,
-        loading: false,
         avatar: action.payload,
+        isLoading: false,
       };
 
     case UPDATE_AVATAR_FAILURE:
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         error: action.payload,
+      };
+
+    // ================= LOGOUT =================
+    case LOGOUT_SUCCESS:
+      return {
+        ...initialState,
+      };
+
+    case "CLEAR_AUTH_MESSAGE":
+      return {
+        ...state,
+        message: null,
+        error: null,
       };
 
     default:

@@ -30,7 +30,6 @@ const ListingForm = ({ initialData = null, onSubmit, loading }) => {
     description: "",
     category: "Luxury",
     hotelcode: "",
-    amenities: "",
     longitude: "",
     latitude: "",
   });
@@ -121,7 +120,7 @@ const ListingForm = ({ initialData = null, onSubmit, loading }) => {
       form.append(key, formData[key]);
     });
 
-    form.append("hotelAmenities", formData.amenities);
+    // append location
     form.append("longitude", formData.longitude);
     form.append("latitude", formData.latitude);
 
@@ -230,15 +229,7 @@ const ListingForm = ({ initialData = null, onSubmit, loading }) => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Amenities (comma separated)"
-              name="amenities"
-              value={formData.amenities}
-              onChange={handleChange}
-            />
-          </Grid>
+         
 
           <Grid item xs={6}>
             <TextField

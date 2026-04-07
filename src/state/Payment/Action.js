@@ -14,6 +14,12 @@ import {
   RAZORPAY_REDIRECT_FAIL,
 } from "./ActionType";
 
+import {
+  VERIFY_PAYMENT_REQUEST,
+  VERIFY_PAYMENT_SUCCESS,
+  VERIFY_PAYMENT_FAILURE,
+} from "./ActionType";
+
 // Create Payment
 export const createPayment = (bookingId) => async (dispatch, getState) => {
   dispatch({ type: CREATE_PAYMENT_REQUEST });
@@ -116,6 +122,40 @@ export const handleRazorpayRedirect =
         payload:
           error.response?.data?.message ||
           error.message,
+      });
+    }
+  };
+
+  // src/state/payment/Action.js
+
+
+
+
+export const verifyPayment =
+  ({ bookingId, paymentId, paymentLinkId, signature }) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: VERIFY_PAYMENT_REQUEST });
+
+      const { data } = await api.post(
+        "/api/webhook/verify",
+        {
+          bookingId,
+          paymentId,
+          paymentLinkId,
+          signature,
+        }
+      );
+
+      dispatch({
+        type: VERIFY_PAYMENT_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: VERIFY_PAYMENT_FAILURE,
+        payload:
+          error.response?.data?.message || "Payment verification failed",
       });
     }
   };

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { FaBed, FaUsers, FaBath, FaCheckCircle } from "react-icons/fa";
+import { FaBed, FaUsers, FaBath, FaCheckCircle ,FaChild} from "react-icons/fa";
 
 const RoomCard = ({ room }) => {
-
+console.log("Rendering RoomCard for room:", room);
   /* ==============================
      IMAGE SOURCE FIX
   ============================== */
@@ -120,6 +120,10 @@ const RoomContent = ({ room, imageSrc, isBookable, statusColors }) => (
         <span className="flex items-center gap-1">
           <FaBath className="text-indigo-500" />
           {room.baths} Baths
+        </span>
+        <span className="flex items-center gap-1">
+          <FaChild className="text-indigo-500" />
+          {room.children} children
         </span>
       </div>
 

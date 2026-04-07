@@ -113,21 +113,48 @@ const ListingTable = () => {
   ];
 
   return (
-    <div className="p-3 sm:p-5">
-      <Card className="rounded-2xl shadow-xl">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+      <Card
+        sx={{
+          borderRadius: "20px",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+        }}
+      >
         <CardHeader
-          title="Listing Management"
-          className="text-center font-bold"
+          title="Hotels Management"
+          sx={{
+            textAlign: "center",
+            fontWeight: "bold",
+            "& .MuiCardHeader-title": {
+              fontSize: "1.4rem",
+              fontWeight: 700,
+            },
+          }}
         />
 
         {/* ⭐ FILTERS */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-3 px-4 pb-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 px-4 pb-5">
           <TextField
             label="Search Title"
             size="small"
             fullWidth
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            sx={{
+              flex: 1,
+              minWidth: "220px",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "14px",
+                background: "#fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                "&:hover": {
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
+                },
+                "&.Mui-focused": {
+                  boxShadow: "0 0 0 2px rgba(25,118,210,0.2)",
+                },
+              },
+            }}
           />
 
           <Select
@@ -137,6 +164,13 @@ const ListingTable = () => {
             onChange={(e) =>
               setCategoryFilter(e.target.value)
             }
+            sx={{
+              flex: 1,
+              minWidth: "180px",
+              borderRadius: "14px",
+              background: "#fff",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
           >
             {uniqueCategories.map((cat) => (
               <MenuItem key={cat} value={cat}>
@@ -152,6 +186,13 @@ const ListingTable = () => {
             onChange={(e) =>
               setCityFilter(e.target.value)
             }
+            sx={{
+              flex: 1,
+              minWidth: "180px",
+              borderRadius: "14px",
+              background: "#fff",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
           >
             {uniqueCities.map((city) => (
               <MenuItem key={city} value={city}>
@@ -164,53 +205,78 @@ const ListingTable = () => {
             variant="contained"
             fullWidth
             onClick={exportToExcel}
+            sx={{
+              flex: 1,
+              minWidth: "180px",
+              borderRadius: "14px",
+              textTransform: "none",
+              fontWeight: 600,
+              background:
+                "linear-gradient(135deg, #1976d2, #42a5f5)",
+              boxShadow:
+                "0 4px 14px rgba(25,118,210,0.3)",
+              "&:hover": {
+                transform: "translateY(-1px)",
+              },
+            }}
           >
             Export Excel
           </Button>
         </div>
 
-        {/* ⭐ TABLE SCROLL FIX */}
+        {/* ⭐ TABLE */}
         <TableContainer
           component={Paper}
-          className="overflow-x-auto"
+          sx={{
+            borderRadius: "16px",
+            overflow: "hidden",
+          }}
         >
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell align="center">
-                  Image
-                </TableCell>
-                <TableCell align="center">
-                  Title
-                </TableCell>
-                <TableCell align="center">
-                  City
-                </TableCell>
-                <TableCell align="center">
-                  Category
-                </TableCell>
-                <TableCell align="center">
-                  Delete
-                </TableCell>
-                <TableCell align="center">
-                  Edit
-                </TableCell>
+                {[
+                  "Image",
+                  "Title",
+                  "HotelCode",
+                  "City",
+                  "Category",
+                  "Delete",
+                  "Edit",
+                ].map((head) => (
+                  <TableCell
+                    key={head}
+                    align="center"
+                    sx={{
+                      fontWeight: 700,
+                      background: "#f9fafb",
+                    }}
+                  >
+                    {head}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {paginatedListings.map((item) => (
+              {paginatedListings.map((item, index) => (
                 <TableRow
                   key={item._id}
                   hover
+                  sx={{
+                    transition: "0.2s",
+                    "&:hover": {
+                      backgroundColor: "#f3f4f6",
+                    },
+                  }}
                 >
                   <TableCell align="center">
                     <Avatar
                       src={item.images?.[0]}
                       alt={item.title}
                       sx={{
-                        width: 36,
-                        height: 36,
+                        width: 42,
+                        height: 42,
                         margin: "auto",
                       }}
                     />
@@ -218,6 +284,10 @@ const ListingTable = () => {
 
                   <TableCell align="center">
                     {item.title}
+                  </TableCell>
+
+                  <TableCell align="center">
+                    {item.hotelcode}
                   </TableCell>
 
                   <TableCell align="center">
@@ -236,6 +306,10 @@ const ListingTable = () => {
                       onClick={() =>
                         setConfirmDelete(item._id)
                       }
+                      sx={{
+                        borderRadius: "10px",
+                        textTransform: "none",
+                      }}
                     >
                       Delete
                     </Button>
@@ -250,6 +324,10 @@ const ListingTable = () => {
                           `/admin/listing/edit/${item._id}`
                         )
                       }
+                      sx={{
+                        borderRadius: "10px",
+                        textTransform: "none",
+                      }}
                     >
                       Edit
                     </Button>
@@ -261,39 +339,33 @@ const ListingTable = () => {
         </TableContainer>
 
         {/* ⭐ PAGINATION */}
-        <div className="flex flex-wrap justify-center items-center gap-3 p-4">
+        <div className="flex justify-center items-center gap-4 p-5">
           <Button
             disabled={page === 1}
-            onClick={() =>
-              setPage((p) => p - 1)
-            }
+            onClick={() => setPage((p) => p - 1)}
           >
             Prev
           </Button>
 
-          <span className="text-sm font-semibold">
-            Page {page} of {totalPages || 1}
+          <span className="font-semibold">
+            Page {page} / {totalPages || 1}
           </span>
 
           <Button
             disabled={page === totalPages}
-            onClick={() =>
-              setPage((p) => p + 1)
-            }
+            onClick={() => setPage((p) => p + 1)}
           >
             Next
           </Button>
         </div>
       </Card>
 
-      {/* ⭐ DELETE DIALOG */}
+      {/* ⭐ DIALOG */}
       <Dialog
         open={!!confirmDelete}
         onClose={() => setConfirmDelete(null)}
       >
-        <DialogTitle>
-          Confirm Delete
-        </DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
 
         <DialogContent>
           Are you sure you want to delete this listing?

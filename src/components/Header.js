@@ -36,8 +36,8 @@ const STATUS_META = {
 const MODULE_META = {
   BOOKINGS: { path: "/mybookings", label: "Bookings" },
   HOUSEKEEPING: { path: "/housekeeping", label: "Housekeeping" },
-  BILLING: { path: "/billing", label: "Billing" },
-  REPORTS: { path: "/reports", label: "Reports" },
+  // BILLING: { path: "/billing", label: "Billing" },
+  REPORTS: { path: "/admin/dashboard", label: "Reports" },
   // ADMIN: { path: "/admin", label: "Admin" },
 };
 
@@ -310,15 +310,7 @@ const Header = () => {
                       <input type="file" hidden onChange={handleAvatarUpload} />
                     </NavDropdown.Item>
 
-                    {/* 🎯 ROLE DASHBOARD INSIDE MENU */}
-                    {dashboardMeta && (
-                      <LinkContainer to={dashboardMeta.path}>
-                        <NavDropdown.Item>
-                          {dashboardMeta.label}
-                        </NavDropdown.Item>
-                      </LinkContainer>
-                    )}
-
+                    
                     <NavDropdown.Divider />
 
                     <NavDropdown.Item

@@ -21,7 +21,7 @@ import { motion } from "framer-motion";
    CONFIG
 ====================== */
 
-const LOGO_URL = "https://cdn-icons-png.flaticon.com/512/3075/3075977.png";
+const LOGO_URL = "https://png.pngtree.com/png-vector/20190521/ourmid/pngtree-hotel-icon-for-personal-and-commercial-use-png-image_1044892.jpg";
 
 const ROLE_THEME = {
   user: "#4fc3f7",
@@ -39,41 +39,51 @@ const RegisterScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, message, pendingEmail, user } = useSelector(
-    (state) => state.auth
-  );
+  const { auth } = useSelector( (state) => state);
+  console.log("Auth State:", auth);
+ const { isLoading, error, message, pendingEmail , user} = useSelector(
+  (state) => state.auth
+);
+const loading = isLoading;
+
+  console.log("pendingEmail:", pendingEmail, "user:", user);
 
   const themeColor = ROLE_THEME[user?.role] || "#4fc3f7";
 
-  /* 🔥 OTP Redirect (Safe + Deterministic) */
-  useEffect(() => {
-    const email = pendingEmail || localStorage.getItem("otpEmail");
-    const pendingOtp = localStorage.getItem("pendingOtpVerification");
+useEffect(() => {
+  const storedEmail = localStorage.getItem("otpEmail");
 
-    if (email && pendingOtp === "true") {
-      navigate("/verify-otp", { replace: true });
-    }
-  }, [pendingEmail, navigate]);
+  console.log("Redux:", pendingEmail);
+  console.log("LocalStorage:", storedEmail);
+
+  if (pendingEmail || storedEmail) {
+    navigate("/verify-otp", { replace: true });
+  }
+}, [pendingEmail, navigate]);
 
   /* 🔥 Clear messages on unmount */
   useEffect(() => {
     return () => dispatch(clearAuthMessage());
   }, [dispatch]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    dispatch(
-      register({
+  const data = new FormData(e.currentTarget);
+
+  dispatch(
+    register(
+      {
         firstname: data.get("firstname"),
         lastname: data.get("lastname"),
         email: data.get("email"),
         phone: data.get("phone"),
         password: data.get("password"),
-      })
-    );
-  };
+      },
+      navigate
+    )
+  );
+};
 
   const handleGoogleSuccess = (res) => {
     dispatch(googleLogin(res.credential));

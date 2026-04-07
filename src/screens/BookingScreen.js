@@ -18,6 +18,7 @@ import Carousel from "react-bootstrap/Carousel";
 import {
   FaBed,
   FaUsers,
+  FaChild,
   FaHotel,
   FaCheckCircle,
 } from "react-icons/fa";
@@ -164,6 +165,10 @@ const BookingScreen = () => {
             <p className="flex items-center gap-2">
               <FaUsers className="text-blue-400" />
               Max Guests: {room.guests}
+            </p>
+            <p className="flex items-center gap-2">
+              <FaChild className="text-blue-400" />
+              Max Children: {room.children}
             </p>
 
             <p className="flex items-center gap-2">

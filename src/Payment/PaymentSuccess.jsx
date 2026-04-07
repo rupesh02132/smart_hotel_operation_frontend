@@ -30,9 +30,14 @@ const PaymentSuccess = () => {
      FETCH ONCE
   ========================= */
   useEffect(() => {
-    if (!bookingId) return;
-    dispatch(getBookingsBy_Id(bookingId));
-  }, [dispatch, bookingId]);
+  const interval = setInterval(() => {
+    if (bookingId) {
+      dispatch(getBookingsBy_Id(bookingId));
+    }
+  }, 3000); // every 3 sec
+
+  return () => clearInterval(interval);
+}, [bookingId, dispatch]);
 
   /* =========================
      SOCKET REAL-TIME UPDATE

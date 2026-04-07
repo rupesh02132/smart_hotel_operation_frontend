@@ -12,18 +12,14 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const RoomForm = ({
-  listingId,
-  initialData = null,
-  onSubmit,
-  loading,
-}) => {
+const RoomForm = ({ listingId, initialData = null, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
     listing: listingId,
     roomNumber: "",
     floor: "",
     roomType: "",
     guests: "",
+    children: "",
     bedrooms: "",
     beds: "",
     baths: "",
@@ -45,6 +41,7 @@ const RoomForm = ({
         floor: initialData.floor || "",
         roomType: initialData.roomType || "",
         guests: initialData.guests || "",
+        children: initialData.children || "",
         bedrooms: initialData.bedrooms || "",
         beds: initialData.beds || "",
         baths: initialData.baths || "",
@@ -77,9 +74,7 @@ const RoomForm = ({
   /* ================= REMOVE EXISTING IMAGE ================= */
 
   const removeExistingImage = (index) => {
-    const updated = existingImages.filter(
-      (_, i) => i !== index
-    );
+    const updated = existingImages.filter((_, i) => i !== index);
     setExistingImages(updated);
   };
 
@@ -113,10 +108,7 @@ const RoomForm = ({
     });
 
     // Existing images (important for edit)
-    form.append(
-      "existingImages",
-      JSON.stringify(existingImages)
-    );
+    form.append("existingImages", JSON.stringify(existingImages));
 
     // New file uploads
     imageFiles.forEach((file) => {
@@ -124,9 +116,7 @@ const RoomForm = ({
     });
 
     // New URL images
-    const validUrls = imageUrls.filter(
-      (url) => url.trim() !== ""
-    );
+    const validUrls = imageUrls.filter((url) => url.trim() !== "");
 
     if (validUrls.length > 0) {
       form.append("images", JSON.stringify(validUrls));
@@ -159,14 +149,59 @@ const RoomForm = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                label="Beds"
+                name="beds"
+                value={formData.beds}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Bedrooms"
+                name="bedrooms"
+                value={formData.bedrooms}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
                 label="Floor"
                 name="floor"
                 value={formData.floor}
                 onChange={handleChange}
               />
             </Grid>
-
             <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Guests"
+                name="guests"
+                value={formData.guests}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Children"
+                name="children"
+                value={formData.children}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Baths"
+                name="baths"
+                value={formData.baths}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={8} mx="auto">
               <TextField
                 select
                 fullWidth
@@ -175,15 +210,19 @@ const RoomForm = ({
                 value={formData.roomType}
                 onChange={handleChange}
                 required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "12px",
+                  },
+                }}
               >
+                <MenuItem value="">Select Room Type</MenuItem>
                 <MenuItem value="Single">Single</MenuItem>
                 <MenuItem value="Double">Double</MenuItem>
                 <MenuItem value="Deluxe">Deluxe</MenuItem>
                 <MenuItem value="Suite">Suite</MenuItem>
                 <MenuItem value="Family">Family</MenuItem>
-                <MenuItem value="Presidential">
-                  Presidential
-                </MenuItem>
+                <MenuItem value="Presidential">Presidential</MenuItem>
               </TextField>
             </Grid>
 
@@ -216,11 +255,7 @@ const RoomForm = ({
                   Existing Images
                 </Typography>
 
-                <Box
-                  display="flex"
-                  gap={2}
-                  flexWrap="wrap"
-                >
+                <Box display="flex" gap={2} flexWrap="wrap">
                   {existingImages.map((img, index) => (
                     <Box key={index} position="relative">
                       <img
@@ -242,9 +277,7 @@ const RoomForm = ({
                           right: -10,
                           background: "#fff",
                         }}
-                        onClick={() =>
-                          removeExistingImage(index)
-                        }
+                        onClick={() => removeExistingImage(index)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -256,10 +289,7 @@ const RoomForm = ({
 
             {/* FILE UPLOAD */}
             <Grid item xs={12}>
-              <Button
-                variant="contained"
-                component="label"
-              >
+              <Button variant="contained" component="label">
                 Upload New Images
                 <input
                   hidden
@@ -294,25 +324,18 @@ const RoomForm = ({
                     fullWidth
                     label={`Image URL ${index + 1}`}
                     value={url}
-                    onChange={(e) =>
-                      handleUrlChange(index, e.target.value)
-                    }
+                    onChange={(e) => handleUrlChange(index, e.target.value)}
                   />
                   <IconButton
                     color="error"
-                    onClick={() =>
-                      removeUrlField(index)
-                    }
+                    onClick={() => removeUrlField(index)}
                   >
                     <DeleteIcon />
                   </IconButton>
                 </Box>
               ))}
 
-              <Button
-                variant="outlined"
-                onClick={addUrlField}
-              >
+              <Button variant="outlined" onClick={addUrlField}>
                 + Add Another URL
               </Button>
             </Grid>
@@ -328,8 +351,8 @@ const RoomForm = ({
                 {loading
                   ? "Processing..."
                   : initialData
-                  ? "Update Room"
-                  : "Create Room"}
+                    ? "Update Room"
+                    : "Create Room"}
               </Button>
             </Grid>
           </Grid>

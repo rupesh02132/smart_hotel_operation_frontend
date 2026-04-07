@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
    CONFIG
 ====================== */
 
-const LOGO_URL = "https://cdn-icons-png.flaticon.com/512/3075/3075977.png";
+const LOGO_URL = "https://png.pngtree.com/png-vector/20190521/ourmid/pngtree-hotel-icon-for-personal-and-commercial-use-png-image_1044892.jpg";
 const OTP_DURATION = 600; // 10 minutes
 
 /* ======================

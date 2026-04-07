@@ -1,69 +1,119 @@
-import { useEffect } from 'react';
-import { Table } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { getHostBookings } from '../../state/booking/Action';
-import Loader from '../../components/Loader';
-import Message from '../../components/Message';
+import { useEffect } from "react";
+import { Table } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { getHostBookings } from "../../state/booking/Action";
+import Loader from "../../components/Loader";
+import Message from "../../components/Message";
 
 const HostBookingTable = () => {
   const dispatch = useDispatch();
 
-  const { userBookings, loading, error,allBookings } = useSelector((store) => store.bookings || {});
-console.log("userBookings",userBookings)
-console.log("Allbooking",allBookings)
+  const { loading, error, allBookings } = useSelector(
+    (store) => store.bookings || {}
+  );
 
-
-const {bookings}=useSelector(store=>store);
-console.log("bookings from host",bookings)
   useEffect(() => {
     dispatch(getHostBookings());
   }, [dispatch]);
 
   return (
-    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-gray-800">
-        Host Bookings
-      </h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-6 px-2 sm:px-6">
+      
+      {/* Container */}
+      <div className="max-w-7xl mx-auto bg-white/70 backdrop-blur-lg shadow-xl rounded-2xl p-4 sm:p-6 border border-gray-200">
+        
+        {/* Title */}
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800 tracking-tight">
+          Host Bookings
+        </h2>
 
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant="danger">{error}</Message>
-      ) : allBookings?.length === 0 ? (
-        <p className="text-center text-gray-500">No bookings found.</p>
-      ) : (
-        <div style={{ width: '100%', overflowX: 'auto' }}>
-          <Table striped bordered hover responsive className="min-w-[600px] text-xs sm:text-sm">
-            <thead>
-              <tr>
-                <th className="px-2 py-2">Email</th>
-                <th className="px-2 py-2">Token No</th>
-                <th className="px-2 py-2">Dates</th>
-                <th className="px-2 py-2">Total</th>
-                <th className="px-2 py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allBookings.map((booking) => (
-                <tr key={booking._id}>
-                  <td className="break-all max-w-[120px]">{booking.user?.email}</td>
-                  {booking.isPaid ? (
-                    <td>{booking._id.slice(0, 7)}</td>
-                  ) : (
-                    <td className="text-red-500">Not Paid</td>
-                  )}
-                  <td>
-                    {new Date(booking.checkIn).toLocaleDateString()} -{' '}
-                    {new Date(booking.checkOut).toLocaleDateString()}
-                  </td>
-                  <td>₹{booking.totalPrice}</td>
-                  <td>{booking.isPaid ? 'Paid' : 'Pending'}</td>
+        {/* States */}
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant="danger">{error}</Message>
+        ) : allBookings?.length === 0 ? (
+          <p className="text-center text-gray-500 text-lg">
+            No bookings found.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+            
+            <Table
+              hover
+              responsive
+              className="min-w-[700px] text-sm align-middle mb-0"
+            >
+              {/* Header */}
+              <thead className="bg-gray-900 text-white sticky top-0 z-10">
+                <tr className="text-xs sm:text-sm uppercase tracking-wider">
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Token</th>
+                  <th className="px-4 py-3">Dates</th>
+                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3 text-center">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      )}
+              </thead>
+
+              {/* Body */}
+              <tbody>
+                {allBookings.map((booking, index) => (
+                  <tr
+                    key={booking._id}
+                    className={`transition duration-200 ${
+                      index % 2 === 0
+                        ? "bg-white"
+                        : "bg-gray-50"
+                    } hover:bg-blue-50`}
+                  >
+                    {/* Email */}
+                    <td className="px-4 py-3 font-medium text-gray-700 break-all max-w-[180px]">
+                      {booking.user?.email || "N/A"}
+                    </td>
+
+                    {/* Token */}
+                    <td className="px-4 py-3 font-semibold text-gray-800">
+                      {booking.isPaid ? (
+                        <span className="bg-gray-200 px-2 py-1 rounded-md text-xs">
+                          #{booking._id.slice(0, 7)}
+                        </span>
+                      ) : (
+                        <span className="text-red-500 font-medium">
+                          Not Paid
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Dates */}
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      {new Date(booking.checkIn).toLocaleDateString()} -{" "}
+                      {new Date(booking.checkOut).toLocaleDateString()}
+                    </td>
+
+                    {/* Price */}
+                    <td className="px-4 py-3 font-semibold text-gray-800">
+                      ₹{booking.totalPrice}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-3 text-center">
+                      {booking.isPaid ? (
+                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                          Paid
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
