@@ -36,9 +36,9 @@ const STATUS_META = {
 const MODULE_META = {
   BOOKINGS: { path: "/mybookings", label: "Bookings" },
   HOUSEKEEPING: { path: "/housekeeping", label: "Housekeeping" },
-  // BILLING: { path: "/billing", label: "Billing" },
-  REPORTS: { path: "/admin/dashboard", label: "Reports" },
-  // ADMIN: { path: "/admin", label: "Admin" },
+  BILLING: { path: "/billing", label: "Billing" },
+  REPORTS: { path: "/", label: "Reports" },
+ 
 };
 
 const ROLE_DASHBOARD = {
@@ -68,10 +68,10 @@ const Header = () => {
 
   const { auth, bookings } = useSelector((state) => state);
   const user = auth?.user?.user;
-  console.log("User... Role:", auth);
+
 
   const { notification } = useSelector((state) => state);
-  console.log("Notifications from Redux:", notification);
+ 
 
   /* 🔥 Auto-hydrate user */
   useEffect(() => {
@@ -103,9 +103,10 @@ const Header = () => {
     if (!user) return [];
 
     if (user.role === "admin") return Object.keys(MODULE_META);
-    if (user.role === "manager") return ["BOOKINGS", "HOUSEKEEPING", "REPORTS"];
+    if (user.role === "manager") return ["BOOKINGS", "HOUSEKEEPING"];
     if (user.role === "staff") return ["HOUSEKEEPING"];
-    if (user.role === "host") return ["BOOKINGS", "BILLING"];
+    if (user.role === "host") return ["BOOKINGS"];
+    // if (user.role === "host") return ["BOOKINGS", "BILLING", "REPORTS"];
     return ["BOOKINGS"];
   }, [user]);
 

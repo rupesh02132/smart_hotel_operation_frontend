@@ -35,6 +35,7 @@ import HostScreen from "./HostScreen";
 import BookingTable from "../../Admin/component/BookingTable";
 import ProfileScreen from "../../screens/UserProfile";
 import CreateListingScreen from "../../screens/CreateListingScreen"; 
+import EditListingScreen from "../../screens/EditListingScreen";
 
 /* ================================
    HOST THEME COLORS
@@ -282,6 +283,7 @@ const HostLayout = () => {
             <Route path="/listings" element={<HostScreen />} />
             <Route path="/bookings" element={<BookingTable />} />
             <Route path="/listings/new" element={<CreateListingScreen />} />
+            <Route path="/listings/:id/edit" element={<EditListingScreen />} />
 
             <Route
               path="/payments"

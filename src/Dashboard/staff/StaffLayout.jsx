@@ -25,10 +25,12 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import HotelIcon from "@mui/icons-material/Hotel";
+import QrCodeIcon from "@mui/icons-material/QrCode";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import StaffDashboard from "./StaffDashboard";
 import HousekeepingScreen from "../../screens/HousekeepingScreen";
+import RoomTable from "../../Admin/component/RoomTable";
 
 import { logout } from "../../state/auth/Action";
 
@@ -37,6 +39,7 @@ const drawerWidth = 260;
 const menu = [
   { name: "Dashboard", path: "/staff/dashboard", icon: <HotelIcon /> },
   { name: "Housekeeping", path: "/staff/housekeeping", icon: <CleaningServicesIcon /> },
+  { name: "Generate QR", path: "/staff/qr", icon: <QrCodeIcon /> },
 ];
 
 const StaffLayout = () => {
@@ -244,6 +247,7 @@ const StaffLayout = () => {
             <Routes>
               <Route path="/dashboard" element={<StaffDashboard />} />
               <Route path="/housekeeping" element={<HousekeepingScreen />} />
+              <Route path="/qr" element={<RoomTable />} />
             </Routes>
           </Box>
         </Container>

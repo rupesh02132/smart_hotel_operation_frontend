@@ -110,7 +110,7 @@ const HotelRoomTable = () => {
         }}
       >
         <Typography variant="h4" fontWeight={800}>
-          Elite Room Management
+          Room Management
         </Typography>
 
         {/* SEARCH HOTEL CODE */}

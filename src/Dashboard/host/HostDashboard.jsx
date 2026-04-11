@@ -9,8 +9,6 @@ import { getHostEarningsAction } from "../../state/Payment/Action";
 import { getHostRoomStatusAction } from "../../state/housekeep/Action";
 
 import ListingCard from "../../components/ListingCard";
-import BookingTable from "../../Admin/component/BookingTable";
-import CustomerTable from "../../Admin/component/CustomerTable";
 
 /* ================================
    ✅ PREMIUM HOST DASHBOARD THEME
@@ -42,8 +40,9 @@ const HostDashboard = () => {
   const userId = useSelector((state) => state.auth?.user?.user?._id);
 
   // ✅ Listings
-  const listings =
-    useSelector((state) => state.listing?.listings?.data) || [];
+  const listings1 = useSelector((store) => store.listings);
+  const listings = listings1?.listing.listings || [];
+  console.log("listings from host dashboard", listings);
 
   // ✅ Earnings (Correct from reducer)
   const paymentState = useSelector((state) => state.payment) || {
@@ -83,34 +82,34 @@ const HostDashboard = () => {
      SOCKET LIVE EVENTS
   ================================ */
   useEffect(() => {
-  if (!socket) return;
+    if (!socket) return;
 
-  const bookingHandler = (data) => {
-    setNotifications((prev) => [
-      `📌 New Booking: Room ${data.roomNumber} booked (₹${data.amount})`,
-      ...prev,
-    ]);
+    const bookingHandler = (data) => {
+      setNotifications((prev) => [
+        `📌 New Booking: Room ${data.roomNumber} booked (₹${data.amount})`,
+        ...prev,
+      ]);
 
-    dispatch(getHostEarningsAction());
-  };
+      dispatch(getHostEarningsAction());
+    };
 
-  const housekeepingHandler = (data) => {
-    setNotifications((prev) => [
-      `🧹 Room ${data.roomNumber} is now ${data.status}`,
-      ...prev,
-    ]);
+    const housekeepingHandler = (data) => {
+      setNotifications((prev) => [
+        `🧹 Room ${data.roomNumber} is now ${data.status}`,
+        ...prev,
+      ]);
 
-    dispatch(getHostRoomStatusAction());
-  };
+      dispatch(getHostRoomStatusAction());
+    };
 
-  socket.on("newBooking", bookingHandler);
-  socket.on("housekeepingUpdated", housekeepingHandler);
+    socket.on("newBooking", bookingHandler);
+    socket.on("housekeepingUpdated", housekeepingHandler);
 
-  return () => {
-    socket.off("newBooking", bookingHandler);
-    socket.off("housekeepingUpdated", housekeepingHandler);
-  };
-}, [dispatch, socket]);
+    return () => {
+      socket.off("newBooking", bookingHandler);
+      socket.off("housekeepingUpdated", housekeepingHandler);
+    };
+  }, [dispatch, socket]);
 
   /* ================================
      DASHBOARD STATS
@@ -120,8 +119,7 @@ const HostDashboard = () => {
   const cleaningRooms =
     rooms?.filter((r) => r.status === "Cleaning").length || 0;
 
-  const readyRooms =
-    rooms?.filter((r) => r.status === "Ready").length || 0;
+  const readyRooms = rooms?.filter((r) => r.status === "Ready").length || 0;
 
   /* Navigation */
   const handleCreate = () => navigate("/host/listings/new");
@@ -156,7 +154,11 @@ const HostDashboard = () => {
         {/* ================= STATS ================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard title="Total Listings" value={totalListings} color="sky" />
-          <StatCard title="Rooms Cleaning" value={cleaningRooms} color="yellow" />
+          <StatCard
+            title="Rooms Cleaning"
+            value={cleaningRooms}
+            color="yellow"
+          />
           <StatCard title="Rooms Ready" value={readyRooms} color="green" />
           <StatCard
             title="Total Earnings"
@@ -174,7 +176,7 @@ const HostDashboard = () => {
           {hostListings.map((listing) => (
             <div
               key={listing._id}
-              className="rounded-2xl hover:-translate-y-2 transition shadow-lg"
+              className="rounded-2xl hover:-translate-y-2 transition shadow-lg pointer-events-none"
             >
               <ListingCard listing={listing} />
             </div>
@@ -188,10 +190,7 @@ const HostDashboard = () => {
         </div>
 
         {/* ================= TABLES ================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-          <BookingTable />
-          <CustomerTable />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10"></div>
       </div>
     </section>
   );

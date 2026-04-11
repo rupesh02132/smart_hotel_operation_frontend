@@ -51,6 +51,7 @@ const menu = [
     path: "/manager/analytics",
     icon: <AnalyticsIcon />,
   },
+ 
 ];
 
 const ManagerLayout = () => {

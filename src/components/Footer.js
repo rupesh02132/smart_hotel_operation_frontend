@@ -31,7 +31,8 @@ const Footer = () => {
               <li>Home</li>
               <li>Bookings</li>
               <li>Check-In</li>
-              <li>Contact</li>
+              <li>Rooms</li>
+              <li><button onClick={() => window.location.href = '/contact'}>Contact</button></li>
             </ul>
           </Col>
 
@@ -39,7 +40,7 @@ const Footer = () => {
             <h6>Support</h6>
             <p className="small">
               Email: support@smarthotel.com <br />
-              Phone: +91-9876543210
+              Phone: +91-8084895493
             </p>
           </Col>
 

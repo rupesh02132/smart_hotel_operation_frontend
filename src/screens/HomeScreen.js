@@ -1,25 +1,47 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import SmartCarousel from "../components/homeCarousel/SmartCarousel";
 import ListingCard from "../components/ListingCard";
 import Message from "../components/Message";
 import { findListing } from "../state/listing/Action";
-
 import { FaMicrophone, FaSmile } from "react-icons/fa";
-
 import Skeleton from "@mui/material/Skeleton";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-const TRENDING_CITIES = ["Dubai", "Paris", "New York", "London", "Goa", "Bali"];
+const TRENDING_CITIES = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Goa",
+  "Jaipur",
+  "Manali",
+  "Udaipur",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Rishikesh",
+  "Shimla",
+  "Agra",
+  "Jaisalmer",
+  "Leh",
+  "Darjeeling",
+  "Pondicherry",
+  "Coorg",
+  "Andaman",
+  "Lakshadweep",
+  "Munnar",
+  "Ooty",
+  "Kumarakom",
+  "Mysore",
+  "Noida"
+];
 
-const FEATURED_COUNT = 6;
+const FEATURED_COUNT = 10;
 
 const luxuryField = {
   "& .MuiOutlinedInput-root": {
@@ -43,7 +65,6 @@ const HomeScreen = () => {
   const navigate = useNavigate();
 
   const { listings } = useSelector((store) => store);
- 
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchCity, setSearchCity] = useState("");
@@ -54,7 +75,6 @@ const HomeScreen = () => {
   const [sortBy, setSortBy] = useState("");
   const [checkInDate, setCheckInDate] = useState(null);
   const [mood, setMood] = useState("Browsing");
-
 
   const listingsPerPage = 12;
 
@@ -107,21 +127,21 @@ const HomeScreen = () => {
   }, [listings]);
 
   /* ⭐ Voice search FIX */
-const startVoiceSearch = () => {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const startVoiceSearch = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  if (!SR) return alert("Voice not supported");
+    if (!SR) return alert("Voice not supported");
 
-  const rec = new SR();
-  rec.lang = "en-US";
-  rec.start();
+    const rec = new SR();
+    rec.lang = "en-US";
+    rec.start();
 
-  rec.onresult = (e) => {
-    let text = e.results[0][0].transcript;
-    text = text.replace(/[.。]/g, "").trim();
-    setSearchCity(text);
+    rec.onresult = (e) => {
+      let text = e.results[0][0].transcript;
+      text = text.replace(/[.。]/g, "").trim();
+      setSearchCity(text);
+    };
   };
-};
 
   const resetFilters = () => {
     setSearchCity("");
@@ -212,7 +232,7 @@ const startVoiceSearch = () => {
               key={hotel._id}
               onClick={() => navigate(`/hotel/${hotel._id}/rooms`)}
               style={{ minWidth: 240 }}
-              className="bg-dark bg-opacity-50 rounded-3 p-2 cursor-pointer"
+              className="bg-opacity-50 rounded-5 p-2 cursor-pointer"
             >
               <ListingCard listing={hotel} />
             </div>
@@ -220,51 +240,7 @@ const startVoiceSearch = () => {
         </div>
 
         {/* ================= SMART HOTEL PLATFORM INFO ================= */}
-
-        <div
-          className="relative mt-8 overflow-hidden rounded-3xl border border-yellow-400/30 
-                bg-gradient-to-r from-[#020617] via-[#020617] to-black shadow-xl"
-        >
-          {/* glow background */}
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_30%,#facc15,transparent)]" />
-
-          <div className="py-4 group">
-            <div className="flex gap-16 whitespace-nowrap smart-track">
-              <div className="smart-pill">
-                🏨 Smart Hotel Platform – Luxury stays worldwide
-              </div>
-
-              <div className="smart-pill">
-                ⚡ Real-time booking & AI powered search
-              </div>
-
-              <div className="smart-pill">
-                📍 Discover hotels, compare prices, book instantly
-              </div>
-
-              <div className="smart-pill">
-                ⭐ Trusted reviews & seamless experience
-              </div>
-
-              {/* duplicate for smooth infinite */}
-              <div className="smart-pill">
-                🏨 Smart Hotel Platform – Luxury stays worldwide
-              </div>
-
-              <div className="smart-pill">
-                ⚡ Real-time booking & AI powered search
-              </div>
-
-              <div className="smart-pill">
-                📍 Discover hotels, compare prices, book instantly
-              </div>
-
-              <div className="smart-pill">
-                ⭐ Trusted reviews & seamless experience
-              </div>
-            </div>
-          </div>
-        </div>
+        <SmartCarousel />
 
         {/* all */}
         <h4 className="text-white mt-4 mb-3">All Hotels</h4>
@@ -287,7 +263,7 @@ const startVoiceSearch = () => {
                 onClick={() => navigate(`/hotel/${hotel._id}/rooms`)}
                 className="col-6 col-md-3"
               >
-                <div className="bg-dark bg-opacity-50 p-2 rounded-3 h-100">
+                <div className="bg-opacity-50 p-2 rounded-5 h-100">
                   <ListingCard listing={hotel} />
                 </div>
               </div>
@@ -312,6 +288,44 @@ const startVoiceSearch = () => {
           >
             Next
           </button>
+        </div>
+        {/* 🔥 ADD THIS SECTION HERE */}
+        <div className="mt-10 text-center max-w-3xl mx-auto text-gray-300 px-4">
+          <h2 className="text-3xl font-bold text-yellow-400 mb-4">
+            Smart Hotel Platform
+          </h2>
+
+          <p className="text-base md:text-lg leading-relaxed text-gray-300 max-w-2xl mx-auto text-center tracking-wide">
+            Smart Hotel is an intelligent booking platform designed to simplify
+            how users discover and reserve accommodations. It leverages
+            <span className="text-yellow-400 font-medium">
+              {" "}
+              AI-driven recommendations
+            </span>
+            , real-time availability, and a seamless user experience to deliver
+            <span className="text-yellow-400 font-medium">
+              {" "}
+              fast, reliable, and personalized
+            </span>{" "}
+            hotel booking.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6 mt-8 text-sm">
+            <div className="p-4 bg-white/5 rounded-xl">
+              ⚡ Fast Booking
+              <br /> Instant confirmation system
+            </div>
+
+            <div className="p-4 bg-white/5 rounded-xl">
+              🤖 Smart AI
+              <br /> Personalized recommendations
+            </div>
+
+            <div className="p-4 bg-white/5 rounded-xl">
+              🔒 Secure
+              <br /> Safe payments & data protection
+            </div>
+          </div>
         </div>
       </div>
     </LocalizationProvider>

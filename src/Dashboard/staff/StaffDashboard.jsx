@@ -58,11 +58,13 @@ useEffect(() => {
       .includes(search.toLowerCase())
   );
 
+  console.log("tasks", filteredTasks);
   const total = tasksArray.length;
   const completed = tasksArray.filter(
     (t) => t.room?.status === "Ready"
   ).length;
   const pending = total - completed;
+  console.log("stats", { total, completed, pending });
 
   return (
     <div className="container-fluid px-2 px-md-4 py-3">
@@ -133,7 +135,7 @@ useEffect(() => {
               </div>
 
               <p className="small text-muted">
-                Guest: {task.booking?.user?.fisrtname || "—"}
+                Guest: {task.booking?.user?.firstname || "—"}
               </p>
 
               {task.room?.status !== "Ready" && (
@@ -182,7 +184,7 @@ useEffect(() => {
                   </span>
                 </td>
 
-                <td>{task.booking?.user?.name}</td>
+                <td>{task.booking?.user?.firstname}</td>
 
                 <td>
                   {task.room?.updatedAt &&

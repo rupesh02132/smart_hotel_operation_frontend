@@ -7,8 +7,6 @@ import {
   Typography,
   Box,
   Paper,
-  Breadcrumbs,
-  Link,
 } from "@mui/material";
 import ListingForm from "../components/ListingForm";
 
@@ -31,20 +29,6 @@ const CreateListingScreen = () => {
       }}
     >
       <Container maxWidth="xl">
-        {/* Breadcrumb */}
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link
-            underline="hover"
-            color="inherit"
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate("/admin/dashboard")}
-          >
-            Dashboard
-          </Link>
-          <Typography color="text.primary">
-            Create Listing
-          </Typography>
-        </Breadcrumbs>
 
         {/* Header */}
         <Box mb={4}>
