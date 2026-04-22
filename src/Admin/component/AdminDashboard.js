@@ -260,7 +260,7 @@ const AdminDashboardScreen = () => {
       {/* KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-6 mb-12">
         <StatCard title="Users" value={auth?.users?.users?.length || 0} />
-        <StatCard title="Listings" value={listings.length} />
+        <StatCard title="Hotels" value={listings.length} />
         <StatCard title="Bookings" value={bookings.length} />
         <StatCard title="Rooms" value={rooms.length} />
         <StatCard title="Occupied" value={metrics.occupied} />

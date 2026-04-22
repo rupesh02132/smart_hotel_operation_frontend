@@ -92,29 +92,44 @@ const BookingScreen = () => {
      ✅ Only Send Dates + Guests
      Backend Calculates Total
   ============================ */
-  const bookingHandler = async (e) => {
-    e.preventDefault();
+ const bookingHandler = async (e) => {
+  e.preventDefault();
 
-    if (!checkIn || !checkOut) {
-      return alert("Please select dates first");
+  if (!checkIn || !checkOut) {
+    return alert("Please select dates first");
+  }
+
+  try {
+    const result = await dispatch(
+      createBooking({
+        listing: room?.listing,
+        room: roomId,
+        guests,
+        // ✅ FIX: correct field names
+        checkInDate: checkIn.toISOString(),
+        checkOutDate: checkOut.toISOString(),
+      })
+    );
+
+    // ✅ safer extraction (handles different Redux setups)
+    const bookingId =
+      result?.payload?._id ||
+      result?._id ||
+      result?.payload?.booking?._id;
+
+    if (!bookingId) {
+      alert("Booking failed");
+      return;
     }
 
-    try {
-      const booking = await dispatch(
-        createBooking({
-          listing: room?.listing,
-          room: roomId,
-          guests,
-          checkIn: checkIn.toISOString(),
-          checkOut: checkOut.toISOString(),
-        })
-      );
+    // ✅ call payment only if booking success
+    dispatch(createPayment(bookingId));
 
-      dispatch(createPayment(booking?._id));
-    } catch (err) {
-      alert(err.message || "Booking Failed");
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Booking Failed");
+  }
+};
 
   /* ============================
      UI STATES

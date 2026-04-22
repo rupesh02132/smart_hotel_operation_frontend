@@ -76,7 +76,7 @@ const HomeScreen = () => {
   const [checkInDate, setCheckInDate] = useState(null);
   const [mood, setMood] = useState("Browsing");
 
-  const listingsPerPage = 12;
+  const listingsPerPage = 20;
 
   const listingData = listings.listing?.listings || [];
   const totalCount = listings.listing?.totalCount || 0;

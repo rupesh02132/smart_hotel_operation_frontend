@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f4f6",
   },
 
-  /* ===== HEADER ===== */
   header: {
     backgroundColor: "#0f172a",
     color: "white",
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
 
-  /* ===== TOTAL ===== */
   totalCard: {
     backgroundColor: "#16a34a",
     color: "white",
@@ -96,7 +94,7 @@ const InvoicePDF = ({ booking }) => (
   <Document>
     <Page size="A4" style={styles.page}>
 
-      {/* ⭐ HEADER */}
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.hotelName}>Smart Hotel</Text>
         <Text style={styles.subtitle}>
@@ -106,15 +104,15 @@ const InvoicePDF = ({ booking }) => (
 
       <View style={styles.container}>
 
-        {/* ⭐ BOOKING CARD */}
+        {/* BOOKING DETAILS */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>
-            Booking Details
-          </Text>
+          <Text style={styles.sectionTitle}>Booking Details</Text>
 
           <View style={styles.row}>
             <Text style={styles.label}>Booking ID</Text>
-            <Text style={styles.value}>{booking._id}</Text>
+            <Text style={styles.value}>
+              {booking._id?.toUpperCase()}
+            </Text>
           </View>
 
           <View style={styles.row}>
@@ -125,10 +123,18 @@ const InvoicePDF = ({ booking }) => (
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Room</Text>
-            <Text style={styles.value}>
-              {booking.roomNumber}
-            </Text>
+            <Text style={styles.label}>Booking Status</Text>
+            <Text style={styles.value}>{booking.status}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Guests</Text>
+            <Text style={styles.value}>{booking.guests}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Nights</Text>
+            <Text style={styles.value}>{booking.nights}</Text>
           </View>
 
           <View style={styles.row}>
@@ -146,32 +152,94 @@ const InvoicePDF = ({ booking }) => (
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Payment</Text>
+            <Text style={styles.label}>Created At</Text>
             <Text style={styles.value}>
-              {booking.paymentMethod}
+              {formatDate(booking.createdAt)}
             </Text>
           </View>
         </View>
 
-        {/* ⭐ TOTAL */}
-        <View style={styles.totalCard}>
-          <Text style={styles.totalLabel}>
-            Total Amount
-          </Text>
+        {/* ROOM DETAILS */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Room Details</Text>
 
+          <View style={styles.row}>
+            <Text style={styles.label}>Room Number</Text>
+            <Text style={styles.value}>
+              {booking.room?.roomNumber}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Room Type</Text>
+            <Text style={styles.value}>
+              {booking.room?.roomType}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Beds</Text>
+            <Text style={styles.value}>
+              {booking.room?.beds}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Amenities</Text>
+            <Text style={styles.value}>
+              {booking.room?.amenities?.join(", ")}
+            </Text>
+          </View>
+        </View>
+
+        {/* PAYMENT DETAILS */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Payment Details</Text>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Payment Status</Text>
+            <Text style={styles.value}>
+              {booking.paymentStatus}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Payment Method</Text>
+            <Text style={styles.value}>
+              {booking.paymentMethod || "Online"}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Price / Night</Text>
+            <Text style={styles.value}>
+              ₹ {booking.pricePerNight}
+            </Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Total Nights</Text>
+            <Text style={styles.value}>
+              {booking.nights}
+            </Text>
+          </View>
+        </View>
+
+        {/* TOTAL */}
+        <View style={styles.totalCard}>
+          <Text style={styles.totalLabel}>Total Amount</Text>
           <Text style={styles.totalValue}>
             ₹ {booking.totalPrice}
           </Text>
         </View>
 
-        {/* ⭐ FOOTER */}
+        {/* FOOTER */}
         <Text style={styles.footer}>
           Thank you for choosing Smart Hotel Platform.
           We hope you enjoy your stay.
         </Text>
 
       </View>
-
     </Page>
   </Document>
 );

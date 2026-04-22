@@ -6,7 +6,6 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import BookingStatusTimeline from "../components/BookingStatusTimeline";
 import RoomStatusBadge from "../components/RoomStatusBadge";
 import InvoicePDF from "../components/InvoicePDF";
-import GenerateQR from "../Admin/component/GenerateQR";
 import Map from "../components/Map";
 import {
   FaPhone,
@@ -165,11 +164,7 @@ console.log("🚀 ~ file: BookingDetailsScreen.jsx:24 ~ BookingDetailsScreen ~ b
             <BookingStatusTimeline status={booking.status} />
 
             <Section title="Stay Summary">
-              <Info
-                label="Booking ID"
-                value={booking._id}
-                className="uppercase"
-              />
+              <Info label="Booking ID" value={booking._id?.toUpperCase()} />
               <Info label="Stay Status" value={stayStatus} highlight />
               <Info label="Check-in" value={formatDate(booking.checkIn)} />
               <Info label="Check-out" value={formatDate(booking.checkOut)} />
@@ -206,12 +201,7 @@ console.log("🚀 ~ file: BookingDetailsScreen.jsx:24 ~ BookingDetailsScreen ~ b
             Quick Actions
           </h3>
 
-          {/* QR */}
-          {booking.status === "Booked" &&
-           
-            booking.room?.status !== "Occupied" && (
-              <GenerateQR bookingId={booking._id} />
-          )}
+      
 
           {booking.paymentStatus === "failed" && (
             <Action text="Retry Payment" icon={<FaRedo />} onClick={retryPaymentHandler} />
