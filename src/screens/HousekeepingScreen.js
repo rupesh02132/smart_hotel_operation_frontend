@@ -14,25 +14,16 @@ import {
 
 const HousekeepingScreen = () => {
   const dispatch = useDispatch();
-
-  /* ============================
-     REDUX STATE
-  ============================ */
   const { room } = useSelector((state) => state);
   const rawRooms = useMemo(() => room?.rooms || [], [room]);
   const loading = room?.loading;
   const error = room?.error;
 
-  /* ============================
-     LOAD ROOMS
-  ============================ */
   useEffect(() => {
     dispatch(getAllRooms());
   }, [dispatch]);
 
-  /* ============================
-     DERIVED DATA (memoized)
-  ============================ */
+
   const cleaningRooms = useMemo(
     () => rawRooms.filter((r) => r.status === "Cleaning"),
     [rawRooms]
@@ -46,17 +37,11 @@ const HousekeepingScreen = () => {
     return { total, cleaning, ready, occupied };
   }, [rawRooms, cleaningRooms]);
 
-  /* ============================
-     CLEAN ACTION
-  ============================ */
   const handleMarkCleaned = async (roomId) => {
     await dispatch(markRoomCleaned(roomId));
     dispatch(getAllRooms()); // refresh
   };
 
-  /* ============================
-     STATUS BADGE
-  ============================ */
   const StatusBadge = ({ status }) => {
     const styles = {
       Cleaning: "bg-yellow-500/20 text-yellow-300",
