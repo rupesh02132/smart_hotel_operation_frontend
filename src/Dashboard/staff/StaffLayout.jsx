@@ -31,6 +31,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import StaffDashboard from "./StaffDashboard";
 import HousekeepingScreen from "../../screens/HousekeepingScreen";
 import RoomTable from "./QR_Generate";
+import StaffAttendancePanel from "./StaffAttendancePanel";
 
 import { logout } from "../../state/auth/Action";
 
@@ -40,6 +41,7 @@ const menu = [
   { name: "Dashboard", path: "/staff/dashboard", icon: <HotelIcon /> },
   { name: "Housekeeping", path: "/staff/housekeeping", icon: <CleaningServicesIcon /> },
   { name: "Generate QR", path: "/staff/generate-qr", icon: <QrCodeIcon /> },
+  { name: "Attendance", path: "/staff/attendance", icon: <QrCodeIcon /> },
 ];
 
 const StaffLayout = () => {
@@ -248,6 +250,7 @@ const StaffLayout = () => {
               <Route path="/dashboard" element={<StaffDashboard />} />
               <Route path="/housekeeping" element={<HousekeepingScreen />} />
               <Route path="/generate-qr" element={<RoomTable />} />
+              <Route path="/attendance" element={<StaffAttendancePanel />} />
             </Routes>
           </Box>
         </Container>

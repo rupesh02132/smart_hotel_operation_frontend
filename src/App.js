@@ -10,6 +10,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // MUI Date Picker Fix
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import AdminDashboard from "./Admin/component/AdminDashboard";
+import AdminBilling from "./Admin/component/AdminBilling";
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
 
       {/* Manager */}
       <Route path="/manager/*" element={<ManagerRouter />} />
+      <Route path="/dashboard/reports" element={<AdminDashboard />} />
+      <Route path="/dashboard/billing" element={<AdminBilling />} />
     </Routes>
           </main>
 

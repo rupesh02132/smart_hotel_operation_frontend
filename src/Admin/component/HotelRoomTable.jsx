@@ -5,21 +5,30 @@ import { deleteRoom } from "../../state/room/Action";
 import { useNavigate } from "react-router-dom";
 
 import {
-  Box,
   Typography,
-  Grid,
   Button,
   Chip,
-  Avatar,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Card,
-  CardContent,
-  Divider,
   TextField,
+  InputAdornment,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+
+import {
+  Search as SearchIcon,
+  Clear as ClearIcon,
+  Hotel as HotelIcon,
+  MeetingRoom as MeetingRoomIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Settings as SettingsIcon,
+} from "@mui/icons-material";
 
 const HotelRoomTable = () => {
   const dispatch = useDispatch();
@@ -30,7 +39,7 @@ const HotelRoomTable = () => {
   const hotels = useMemo(() => {
     return Array.isArray(listingState.listings) ? listingState.listings : [];
   }, [listingState.listings]);
-
+console.log(hotels);
   const loading = listingState.loading;
 
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -40,44 +49,36 @@ const HotelRoomTable = () => {
     dispatch(getAllListings());
   }, [dispatch]);
 
-  /* ================= FILTER BY HOTEL CODE ================= */
-
   const filteredHotels = useMemo(() => {
     if (!searchCode) return hotels;
-
     return hotels.filter((hotel) =>
       hotel.hotelcode?.toLowerCase().includes(searchCode.toLowerCase()),
     );
   }, [hotels, searchCode]);
 
-  /* ================= STATUS COLOR ================= */
-
-  const getStatusColor = (status) => {
+  const getStatusGradient = (status) => {
     switch (status) {
       case "Occupied":
-        return "error";
+        return "from-red-500 to-rose-600";
       case "Cleaning":
-        return "warning";
+        return "from-yellow-500 to-orange-600";
       case "Booked":
-        return "info";
+        return "from-blue-500 to-cyan-600";
       case "Vacant":
-        return "success";
+        return "from-green-500 to-emerald-600";
       case "Maintenance":
-        return "error";
+        return "from-orange-600 to-red-600";
       case "Ready":
-        return "primary";
-      case "Blocked":
-        return "default";
+        return "from-indigo-500 to-purple-600";
       default:
-        return "default";
+        return "from-gray-500 to-gray-600";
     }
   };
-
-  /* ================= HOTEL STATS ================= */
 
   const getHotelStats = (rooms = []) => ({
     total: rooms.length,
     ready: rooms.filter((r) => r.status === "Ready").length,
+    vacant: rooms.filter((r) => r.status === "Vacant").length,
     occupied: rooms.filter((r) => r.status === "Occupied").length,
     maintenance: rooms.filter((r) => r.status === "Maintenance").length,
   });
@@ -87,230 +88,293 @@ const HotelRoomTable = () => {
     setConfirmDelete(null);
   };
 
+  const clearSearch = () => setSearchCode("");
+
   if (loading) {
-    return <Typography sx={{ p: 4 }}>Loading...</Typography>;
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading rooms...</p>
+        </div>
+      </div>
+    );
   }
 
+  // Calculate global stats
+  const allRooms = hotels.flatMap(h => h.rooms || []);
+  const totalRooms = allRooms.length;
+  const totalOccupied = allRooms.filter(r => r.status === "Occupied").length;
+  const totalVacant = allRooms.filter(r => r.status === "Vacant" || r.status === "Ready").length;
+  const occupancyRate = totalRooms ? Math.round((totalOccupied / totalRooms) * 100) : 0;
+
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 5 },
-        minHeight: "100vh",
-        background: "linear-gradient(180deg,#f9fbfd 0%,#eef2f7 100%)",
-      }}
-    >
-      {/* HEADER */}
-      <Box
-        sx={{
-          mb: 4,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          gap: 2,
-        }}
-      >
-        <Typography variant="h4" fontWeight={800}>
-          Room Management
-        </Typography>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+        
+        {/* Header Section */}
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
+                <span className="text-indigo-600 text-xs font-semibold uppercase tracking-wider">Room Inventory</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+                Room Management
+              </h1>
+              <p className="text-gray-500 text-sm mt-1">Manage rooms across all hotel properties</p>
+            </div>
+          </div>
+        </div>
 
-        {/* SEARCH HOTEL CODE */}
-        <TextField
-          size="small"
-          label="Search by Hotel Code"
-          value={searchCode}
-          onChange={(e) => setSearchCode(e.target.value)}
-        />
-      </Box>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
+          <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-xl p-3 sm:p-4 border border-blue-500/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-600">{totalRooms}</p>
+                <p className="text-xs text-gray-500 mt-1">Total Rooms</p>
+              </div>
+              <MeetingRoomIcon className="text-blue-500 text-2xl opacity-70" />
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-red-500/10 to-rose-600/5 rounded-xl p-3 sm:p-4 border border-red-500/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600">{totalOccupied}</p>
+                <p className="text-xs text-gray-500 mt-1">Occupied</p>
+              </div>
+              <HotelIcon className="text-red-500 text-2xl opacity-70" />
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/5 rounded-xl p-3 sm:p-4 border border-green-500/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600">{totalVacant}</p>
+                <p className="text-xs text-gray-500 mt-1">Available</p>
+              </div>
+              <MeetingRoomIcon className="text-green-500 text-2xl opacity-70" />
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-xl p-3 sm:p-4 border border-purple-500/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-600">{occupancyRate}%</p>
+                <p className="text-xs text-gray-500 mt-1">Occupancy Rate</p>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${occupancyRate}%` }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      {filteredHotels.map((hotel) => {
-        const stats = getHotelStats(hotel.rooms);
-
-        return (
-          <Card
-            key={hotel._id}
-            sx={{
-              mb: 5,
-              borderRadius: 4,
-              overflow: "hidden",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.06)",
+        {/* Search Bar */}
+        <div className="mb-6">
+          <TextField
+            size="small"
+            placeholder="Search by hotel code..."
+            fullWidth
+            value={searchCode}
+            onChange={(e) => setSearchCode(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+              endAdornment: searchCode && (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={clearSearch}>
+                    <ClearIcon className="text-gray-400" />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: { borderRadius: "14px", backgroundColor: "#fff" }
             }}
-          >
-            {/* HOTEL HEADER */}
-            <Box
-              sx={{
-                p: { xs: 3, md: 4 },
-                background: "linear-gradient(135deg,#0f2027,#203a43,#2c5364)",
-                color: "#fff",
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                justifyContent: "space-between",
-                alignItems: { xs: "flex-start", md: "center" },
-                gap: 2,
-              }}
-            >
-              <Box>
-                <Typography fontWeight={700} fontSize={20}>
-                  {hotel.title}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  {hotel.city}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  <strong>Hotel Code:</strong> {hotel.hotelcode}
-                </Typography>
-              </Box>
+          />
+        </div>
 
-              <Button
-                variant="contained"
-                sx={{
-                  background: "#fff",
-                  color: "#0f2027",
-                  fontWeight: 700,
-                }}
-                onClick={() =>
-                  navigate(`/admin/hotels/${hotel._id}/rooms/create`)
-                }
-              >
-                + Add Room
-              </Button>
-            </Box>
+        {/* Hotels List */}
+        {filteredHotels.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
+            <HotelIcon className="text-5xl text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No hotels found</p>
+            <p className="text-sm text-gray-400 mt-1">Try a different hotel code</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredHotels.map((hotel) => {
+              const stats = getHotelStats(hotel.rooms);
+              const rooms = hotel.rooms || [];
 
-            {/* STATS */}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 3,
-                p: 3,
-                background: "#f4f7fb",
-              }}
-            >
-              <Typography fontWeight={600}>Total: {stats.total}</Typography>
-              <Typography color="primary">Ready: {stats.ready}</Typography>
-              <Typography color="error">Occupied: {stats.occupied}</Typography>
-              <Typography color="warning.main">
-                Maintenance: {stats.maintenance}
-              </Typography>
-            </Box>
+              return (
+                <Card key={hotel._id} className="rounded-2xl shadow-xl border-0 overflow-hidden">
+                  {/* Hotel Header */}
+                  <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                      <Typography variant="h6" fontWeight="bold" className="text-white">
+                        {hotel.title}
+                      </Typography>
+                      <div className="flex flex-wrap gap-3 mt-1 text-sm text-gray-300">
+                        <span>{hotel.city}</span>
+                        <span className="text-gray-500">|</span>
+                        <span className="font-mono text-indigo-300">Code: {hotel.hotelcode}</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      onClick={() => navigate(`/admin/hotels/${hotel._id}/rooms/create`)}
+                      sx={{
+                        background: "linear-gradient(135deg, #10b981, #059669)",
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        fontWeight: 600,
+                        "&:hover": { background: "linear-gradient(135deg, #059669, #047857)" }
+                      }}
+                    >
+                      Add Room
+                    </Button>
+                  </div>
 
-            <Divider />
+                  {/* Stats Bar */}
+                  <div className="bg-gray-50 px-4 sm:px-6 py-3 flex flex-wrap gap-4 text-sm border-b border-gray-100">
+                    <div className="flex items-center gap-1"><span className="font-semibold">Total:</span> {stats.total}</div>
+                    <div className="flex items-center gap-1"><span className="font-semibold text-indigo-600">Ready:</span> {stats.ready}</div>
+                    <div className="flex items-center gap-1"><span className="font-semibold text-green-600">Vacant:</span> {stats.vacant}</div>
+                    <div className="flex items-center gap-1"><span className="font-semibold text-red-600">Occupied:</span> {stats.occupied}</div>
+                    <div className="flex items-center gap-1"><span className="font-semibold text-amber-600">Maintenance:</span> {stats.maintenance}</div>
+                  </div>
 
-            {/* ROOMS */}
-            <CardContent sx={{ p: { xs: 2, md: 4 } }}>
-              <Grid container spacing={3}>
-                {(hotel.rooms || []).map((room) => {
-                  const canModify =
-                    room.status === "Ready" || room.status === "Vacant";
+                  {/* Rooms Grid */}
+                  <div className="p-4 sm:p-6">
+                    {rooms.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <MeetingRoomIcon className="text-4xl mx-auto mb-2 opacity-50" />
+                        <p>No rooms added yet</p>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => navigate(`/admin/hotels/${hotel._id}/rooms/create`)}
+                          sx={{ mt: 1, borderRadius: "10px" }}
+                        >
+                          + Add First Room
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {rooms.map((room) => {
+                          const canModify = room.status === "Ready" || room.status === "Vacant";
+                          const statusGradient = getStatusGradient(room.status);
 
-                  return (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={room._id}>
-                      <Card
-                        sx={{
-                          borderRadius: 4,
-                          boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            transform: "translateY(-6px)",
-                          },
-                        }}
-                      >
-                        <Avatar
-                          src={room.images?.[0]}
-                          variant="rounded"
-                          sx={{
-                            width: "100%",
-                            height: 180,
-                            borderRadius: 0,
-                          }}
-                        />
-
-                        <Box sx={{ p: 3 }}>
-                          <Typography fontWeight={700}>
-                            Room {room.roomNumber}
-                          </Typography>
-
-                          <Chip
-                            label={room.status}
-                            color={getStatusColor(room.status)}
-                            size="small"
-                            sx={{ mt: 1 }}
-                          />
-
-                          <Box
-                            sx={{
-                              mt: 2,
-                              display: "flex",
-                              gap: 1,
-                            }}
-                          >
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              disabled={!canModify}
-                              onClick={() =>
-                                navigate(`/admin/rooms/${room._id}/edit`)
-                              }
+                          return (
+                            <div
+                              key={room._id}
+                              className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
                             >
-                              Edit
-                            </Button>
+                              <div className="relative h-40 overflow-hidden">
+                                <img
+                                  src={room.images?.[0] || "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400"}
+                                  alt={`Room ${room.roomNumber}`}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                                />
+                                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${statusGradient}`}>
+                                  {room.status}
+                                </div>
+                                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-md text-white text-xs font-mono">
+                                  #{room.roomNumber}
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <Typography fontWeight="600" fontSize="1rem">
+                                    Room {room.roomNumber}
+                                  </Typography>
+                                  <div className="flex gap-1">
+                                    <Tooltip title="Edit Room">
+                                      <IconButton
+                                        size="small"
+                                        disabled={!canModify}
+                                        onClick={() => navigate(`/admin/rooms/${room._id}/edit`)}
+                                        sx={{ backgroundColor: "#fef3c7", borderRadius: "8px", p: 0.5 }}
+                                      >
+                                        <EditIcon sx={{ fontSize: "1rem", color: "#d97706" }} />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Change Status">
+                                      <IconButton
+                                        size="small"
+                                        disabled={!canModify}
+                                        onClick={() => navigate(`/admin/rooms/${room._id}/status`)}
+                                        sx={{ backgroundColor: "#e0e7ff", borderRadius: "8px", p: 0.5 }}
+                                      >
+                                        <SettingsIcon sx={{ fontSize: "1rem", color: "#4f46e5" }} />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Delete Room">
+                                      <IconButton
+                                        size="small"
+                                        disabled={!canModify}
+                                        onClick={() => setConfirmDelete(room._id)}
+                                        sx={{ backgroundColor: "#fee2e2", borderRadius: "8px", p: 0.5 }}
+                                      >
+                                        <DeleteIcon sx={{ fontSize: "1rem", color: "#dc2626" }} />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  <Chip
+                                    label={`Floor ${room.floor || "N/A"}`}
+                                    size="small"
+                                    sx={{ height: 22, fontSize: "0.65rem" }}
+                                  />
+                                  <Chip
+                                    label={`${room.guests || 2} Guests`}
+                                    size="small"
+                                    sx={{ height: 22, fontSize: "0.65rem" }}
+                                  />
+                                  <Chip
+                                    label={`${room.beds || 1} Beds`}
+                                    size="small"
+                                    sx={{ height: 22, fontSize: "0.65rem" }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="error"
-                              disabled={!canModify}
-                              onClick={() => setConfirmDelete(room._id)}
-                            >
-                              Delete
-                            </Button>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="primary"
-                              disabled={!canModify}
-                              onClick={() =>
-                                navigate(`/admin/rooms/${room._id}/status`)
-                              }
-                              sx={{
-                                borderRadius: 2,
-                                fontWeight: 600,
-                                textTransform: "none",
-                                px: 1.5,
-                                transition: "0.25s",
-                                "&:hover": {
-                                  transform: "translateY(-2px)",
-                                  boxShadow: "0 6px 12px rgba(0,0,0,0.15)",
-                                },
-                              }}
-                            >
-                              Room Status
-                            </Button>
-                          </Box>
-                        </Box>
-                      </Card>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </CardContent>
-          </Card>
-        );
-      })}
-
-      {/* DELETE DIALOG */}
-      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
-        <DialogTitle>Delete Room</DialogTitle>
+      {/* Delete Dialog */}
+      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)} PaperProps={{ sx: { borderRadius: "24px", maxWidth: "400px", width: "90%" } }}>
+        <DialogTitle sx={{ textAlign: "center", pt: 3 }}>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-red-100 flex items-center justify-center">
+            <DeleteIcon className="text-red-500 text-2xl" />
+          </div>
+          <Typography variant="h6" fontWeight="bold">Delete Room?</Typography>
+        </DialogTitle>
         <DialogContent>
-          Are you sure you want to delete this room?
+          <Typography variant="body2" color="text.secondary" align="center">
+            This action cannot be undone. This room will be permanently removed.
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
-            Delete
-          </Button>
+        <DialogActions sx={{ justifyContent: "center", gap: 2, pb: 3 }}>
+          <Button onClick={() => setConfirmDelete(null)} variant="outlined" sx={{ borderRadius: "12px", px: 3 }}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} variant="contained" color="error" sx={{ borderRadius: "12px", px: 3 }}>Delete</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 };
 

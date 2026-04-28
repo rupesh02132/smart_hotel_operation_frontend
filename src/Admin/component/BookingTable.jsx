@@ -17,6 +17,10 @@ import {
   TextField,
   Chip,
   Pagination,
+  useMediaQuery,
+  Box,
+  Typography,
+  Divider,
 } from "@mui/material";
 
 import { io } from "socket.io-client";
@@ -36,14 +40,15 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 const OrderTable = () => {
   const dispatch = useDispatch();
   const { bookings } = useSelector((store) => store);
-console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", bookings);
+  console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", bookings);
   const bookingList = useMemo(() => {
-  return bookings?.allBookings || [];
-}, [bookings?.allBookings]);
+    return bookings?.allBookings || [];
+  }, [bookings?.allBookings]);
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const rowsPerPage = 6;
+  const isMobile = useMediaQuery('(max-width:768px)');
 
   /* ===============================
      INITIAL FETCH
@@ -84,7 +89,6 @@ console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", booking
   }, [bookingList, search]);
 
   const totalPages = Math.ceil(filteredBookings.length / rowsPerPage);
-
   const paginatedBookings = filteredBookings.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
@@ -122,18 +126,18 @@ console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", booking
   const handleCheckOut = (id) => dispatch(manualCheckOut(id));
 
   /* ===============================
-     RENDER
+     RENDER (Responsive)
   ================================ */
   return (
-    <div className="px-4 py-6">
+    <div className="px-2 sm:px-4 py-4 sm:py-6">
       <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
         <CardHeader
-          title="🏨 Smart Hotel Booking Control Panel"
-          sx={{ textAlign: "center", fontWeight: "bold" }}
+          title="Smart Hotel Booking Control Panel"
+          sx={{ textAlign: "center", fontWeight: "bold", px: { xs: 1, sm: 2 } }}
         />
 
         {/* SEARCH */}
-        <div style={{ padding: 16 }}>
+        <div style={{ padding: isMobile ? 12 : 16 }}>
           <TextField
             label="Search Guest"
             size="small"
@@ -143,160 +147,242 @@ console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", booking
           />
         </div>
 
-        <TableContainer component={Paper}>
-          <Table size="small">
+        {!isMobile ? (
+          /* DESKTOP TABLE VIEW */
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Room</TableCell>
+                  <TableCell align="center">Guest</TableCell>
+                  <TableCell align="center">Dates</TableCell>
+                  <TableCell align="center">Total</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Assign</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {paginatedBookings.map((item) => {
+                  const isPending = item.status === "Pending";
+                  const isBooked = item.status === "Booked";
+                  const isCheckedIn = item.status === "checked-in";
+                  const roomAssigned = Boolean(item.room?._id);
 
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Room</TableCell>
-                <TableCell align="center">Guest</TableCell>
-                <TableCell align="center">Dates</TableCell>
-                <TableCell align="center">Total</TableCell>
-                <TableCell align="center">Status</TableCell>
-                <TableCell align="center">Assign</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {paginatedBookings.map((item) => {
-
-                /* STATUS MACHINE */
-                const isPending = item.status === "Pending";
-                const isBooked = item.status === "Booked";
-                const isCheckedIn = item.status === "checked-in";
-                // const isCheckedOut = item.status === "checked-out";
-                // const isCancelled = item.status === "cancelled";
-
-                const roomAssigned = Boolean(item.room?._id);
-
-                return (
-                  <TableRow key={item._id} hover>
-
-                    {/* ROOM IMAGE */}
-                    <TableCell align="center">
-                      <AvatarGroup>
-                        <Avatar
-                          src={item.room?.images?.[0]}
-                          sx={{ width: 35, height: 35 }}
-                        />
-                      </AvatarGroup>
-                    </TableCell>
-
-                    {/* GUEST */}
-                    <TableCell align="center">
-                      {item.user?.firstname} {item.user?.lastname}
-                    </TableCell>
-
-                    {/* DATES */}
-                    <TableCell align="center">
-                      {new Date(item.checkIn).toLocaleDateString()} →
-                      {new Date(item.checkOut).toLocaleDateString()}
-                    </TableCell>
-
-                    {/* TOTAL */}
-                    <TableCell align="center">
-                      ₹{item.totalPrice}
-                    </TableCell>
-
-                    {/* STATUS */}
-                    <TableCell align="center">
-                      {getStatusChip(item.status)}
-                    </TableCell>
-
-                    {/* ROOM ASSIGN */}
-                    <TableCell align="center">
-                      {roomAssigned ? (
-                        <Chip
-                          label={`Room ${item.room.roomNumber}`}
-                          color="info"
+                  return (
+                    <TableRow key={item._id} hover>
+                      <TableCell align="center">
+                        <AvatarGroup>
+                          <Avatar
+                            src={item.room?.images?.[0]}
+                            sx={{ width: 35, height: 35 }}
+                          />
+                        </AvatarGroup>
+                      </TableCell>
+                      <TableCell align="center">
+                        {item.user?.firstname} {item.user?.lastname}
+                      </TableCell>
+                      <TableCell align="center">
+                        {new Date(item.checkIn).toLocaleDateString()} →{" "}
+                        {new Date(item.checkOut).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell align="center">₹{item.totalPrice}</TableCell>
+                      <TableCell align="center">
+                        {getStatusChip(item.status)}
+                      </TableCell>
+                      <TableCell align="center">
+                        {roomAssigned ? (
+                          <Chip
+                            label={`Room ${item.room.roomNumber}`}
+                            color="info"
+                            size="small"
+                          />
+                        ) : (
+                          <TextField
+                            size="small"
+                            placeholder="Room No"
+                            disabled={!isBooked}
+                            onBlur={(e) => {
+                              if (e.target.value) {
+                                handleAssignRoom(item._id, e.target.value);
+                              }
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Button
+                          variant="contained"
+                          color="success"
                           size="small"
-                        />
-                      ) : (
-                        <TextField
+                          sx={{ m: 0.3 }}
+                          disabled={!isPending}
+                          onClick={() => handleAccept(item._id)}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="warning"
                           size="small"
-                          placeholder="Room No"
-                          disabled={!isBooked}
-                          onBlur={(e) => {
-                            if (e.target.value) {
-                              handleAssignRoom(item._id, e.target.value);
-                            }
-                          }}
-                        />
-                      )}
-                    </TableCell>
+                          sx={{ m: 0.3 }}
+                          disabled={!isPending}
+                          onClick={() => handleReject(item._id)}
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          sx={{ m: 0.3 }}
+                          disabled={!isBooked || !roomAssigned}
+                          onClick={() => handleCheckIn(item._id)}
+                        >
+                          Check-In
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          size="small"
+                          sx={{ m: 0.3 }}
+                          disabled={!isCheckedIn}
+                          onClick={() => handleCheckOut(item._id)}
+                        >
+                          Check-Out
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          sx={{ m: 0.3 }}
+                          disabled={isCheckedIn}
+                          onClick={() => handleDelete(item._id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          /* MOBILE CARD VIEW */
+          <Box sx={{ p: 1 }}>
+            {paginatedBookings.map((item) => {
+              const isPending = item.status === "Pending";
+              const isBooked = item.status === "Booked";
+              const isCheckedIn = item.status === "checked-in";
+              const roomAssigned = Boolean(item.room?._id);
 
-                    {/* ACTION BUTTONS */}
-                    <TableCell align="center">
+              return (
+                <Card
+                  key={item._id}
+                  sx={{ mb: 2, p: 2, borderRadius: 2 }}
+                  elevation={2}
+                >
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Avatar
+                      src={item.room?.images?.[0]}
+                      sx={{ width: 50, height: 50, borderRadius: 2 }}
+                    />
+                    <Box flex={1}>
+                      <Typography fontWeight="bold">
+                        {item.user?.firstname} {item.user?.lastname}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        {new Date(item.checkIn).toLocaleDateString()} →{" "}
+                        {new Date(item.checkOut).toLocaleDateString()}
+                      </Typography>
+                      <Box display="flex" justifyContent="space-between" mt={0.5}>
+                        <Typography variant="body2" fontWeight="bold">
+                          ₹{item.totalPrice}
+                        </Typography>
+                        {getStatusChip(item.status)}
+                      </Box>
+                    </Box>
+                  </Box>
 
-                      {/* ACCEPT */}
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <Box display="flex" flexWrap="wrap" gap={1} alignItems="center">
+                    {/* Room assign */}
+                    {roomAssigned ? (
+                      <Chip
+                        label={`Room ${item.room.roomNumber}`}
+                        color="info"
+                        size="small"
+                      />
+                    ) : (
+                      <TextField
+                        size="small"
+                        placeholder="Room No"
+                        disabled={!isBooked}
+                        onBlur={(e) => {
+                          if (e.target.value) {
+                            handleAssignRoom(item._id, e.target.value);
+                          }
+                        }}
+                        sx={{ width: 100 }}
+                      />
+                    )}
+
+                    {/* Action buttons row */}
+                    <Box display="flex" flexWrap="wrap" gap={0.5}>
                       <Button
                         variant="contained"
                         color="success"
                         size="small"
-                        sx={{ m: 0.3 }}
                         disabled={!isPending}
                         onClick={() => handleAccept(item._id)}
                       >
                         Accept
                       </Button>
-
-                      {/* REJECT */}
                       <Button
                         variant="contained"
                         color="warning"
                         size="small"
-                        sx={{ m: 0.3 }}
                         disabled={!isPending}
                         onClick={() => handleReject(item._id)}
                       >
                         Reject
                       </Button>
-
-                      {/* CHECK-IN */}
                       <Button
                         variant="contained"
                         color="primary"
                         size="small"
-                        sx={{ m: 0.3 }}
                         disabled={!isBooked || !roomAssigned}
                         onClick={() => handleCheckIn(item._id)}
                       >
                         Check-In
                       </Button>
-
-                      {/* CHECK-OUT */}
                       <Button
                         variant="contained"
                         color="secondary"
                         size="small"
-                        sx={{ m: 0.3 }}
                         disabled={!isCheckedIn}
                         onClick={() => handleCheckOut(item._id)}
                       >
                         Check-Out
                       </Button>
-
-                      {/* DELETE */}
                       <Button
                         variant="contained"
                         color="error"
                         size="small"
-                        sx={{ m: 0.3 }}
                         disabled={isCheckedIn}
                         onClick={() => handleDelete(item._id)}
                       >
                         Delete
                       </Button>
-
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-
-          </Table>
-        </TableContainer>
+                    </Box>
+                  </Box>
+                </Card>
+              );
+            })}
+          </Box>
+        )}
 
         {/* PAGINATION */}
         <div style={{ padding: 16, textAlign: "center" }}>
@@ -305,6 +391,7 @@ console.log("🚀 ~ file: BookingTable.jsx:17 ~ OrderTable ~ bookings:", booking
             page={page}
             onChange={(e, value) => setPage(value)}
             color="primary"
+            size={isMobile ? "small" : "medium"}
           />
         </div>
       </Card>

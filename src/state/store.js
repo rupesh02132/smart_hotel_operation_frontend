@@ -15,6 +15,7 @@ import {housekeepingReducer} from "../state/housekeep/Reducer";
 import {chatbotReducer} from "../state/chatbot/Reducer";
 import {roomReducer} from "./room/reducer";
 import {notificationReducer} from "./notification/Reducer";
+import {attendanceReducer} from "./attendance/Reducer";
 
 const persistConfig = {
   key: "root",
@@ -36,7 +37,7 @@ const rootReducer = combineReducers({
     chatbot: chatbotReducer,
     room: roomReducer,
     notification: notificationReducer,
-
+    attendance: attendanceReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

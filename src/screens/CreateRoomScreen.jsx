@@ -3,13 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { createRoom } from "../state/room/Action";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Container,
-  Typography,
-  Box,
-  Paper,
   Breadcrumbs,
   Link,
-  Divider,
+  Typography,
 } from "@mui/material";
 import RoomForm from "../components/RoomForm";
 
@@ -18,9 +14,7 @@ const CreateRoomScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading } = useSelector(
-    (state) => state.room || {}
-  );
+  const { loading } = useSelector((state) => state.room || {});
 
   const handleCreate = async (formData) => {
     await dispatch(createRoom(formData));
@@ -28,78 +22,45 @@ const CreateRoomScreen = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background:
-          "linear-gradient(180deg,#f9fbfd 0%,#eef2f7 100%)",
-        py: { xs: 3, md: 6 },
-      }}
-    >
-      <Container maxWidth="lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-6 px-4">
+      <div className="max-w-5xl mx-auto">
         {/* Breadcrumb */}
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link
-            underline="hover"
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate("/admin")}
-          >
-            Dashboard
-          </Link>
-          <Link
-            underline="hover"
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate("/admin/rooms")}
-          >
-            Rooms
-          </Link>
-          <Typography color="text.primary">
-            Create Room
-          </Typography>
-        </Breadcrumbs>
-
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 3, md: 5 },
-            borderRadius: 4,
-            backdropFilter: "blur(8px)",
-            background:
-              "rgba(255,255,255,0.95)",
-            boxShadow:
-              "0 15px 45px rgba(0,0,0,0.06)",
-          }}
-        >
-          {/* Header */}
-          <Box mb={3}>
-            <Typography
-              variant="h4"
-              fontWeight={800}
-              sx={{ letterSpacing: 0.3 }}
+        <div className="mb-4">
+          <Breadcrumbs className="text-sm">
+            <Link
+              underline="hover"
+              onClick={() => navigate("/admin/hotels/rooms")}
+              className="cursor-pointer text-gray-500 hover:text-indigo-600 transition"
             >
+              Rooms
+            </Link>
+            <Typography color="text.primary" className="text-gray-800 font-medium">
+              Create Room
+            </Typography>
+          </Breadcrumbs>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+            <Typography variant="h5" className="font-bold text-white">
               Create New Room
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              mt={1}
-            >
-              Add room details, pricing, amenities and
-              images.
+            <Typography variant="caption" className="text-indigo-100">
+              Add room details, pricing, amenities, and images
             </Typography>
-          </Box>
+          </div>
 
-          <Divider sx={{ mb: 4 }} />
-
-          {/* Form */}
-          <RoomForm
-            listingId={listingId}
-            onSubmit={handleCreate}
-            loading={loading}
-          />
-        </Paper>
-      </Container>
-    </Box>
+          <div className="p-5 sm:p-6 md:p-8">
+            <RoomForm
+              listingId={listingId}
+              onSubmit={handleCreate}
+              loading={loading}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

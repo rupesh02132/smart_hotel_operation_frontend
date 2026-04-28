@@ -1,18 +1,12 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getRoomById,
-  updateRoom,
-} from "../state/room/Action";
+import { getRoomById, updateRoom } from "../state/room/Action";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Container,
-  Typography,
-  Box,
-  CircularProgress,
-  Paper,
   Breadcrumbs,
   Link,
+  Typography,
+  CircularProgress,
 } from "@mui/material";
 import RoomForm from "../components/RoomForm";
 
@@ -21,11 +15,7 @@ const EditRoomScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  /* ✅ SAFE SELECTOR */
-  const roomState = useSelector(
-    (state) => state.room || {}
-  );
-
+  const roomState = useSelector((state) => state.room || {});
   const currentRoom = roomState.room;
   const loading = roomState.loading;
 
@@ -41,46 +31,53 @@ const EditRoomScreen = () => {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", background: "#f5f7fa", py: 6 }}>
-      <Container maxWidth="lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-6 px-4">
+      <div className="max-w-5xl mx-auto">
         {/* Breadcrumb */}
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link
-            underline="hover"
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate("/admin/dashboard") }
-          >
-            Dashboard
-          </Link>
-         
-          <Typography>Edit Room</Typography>
-        </Breadcrumbs>
-
-        <Paper sx={{ p: 5, borderRadius: 3 }}>
-          <Typography variant="h4" fontWeight={700} mb={4}>
-            Edit Room
-          </Typography>
-
-          {loading && !currentRoom ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              py={6}
+        <div className="mb-4">
+          <Breadcrumbs className="text-sm">
+            <Link
+              underline="hover"
+              onClick={() => navigate("/admin/hotels/rooms")}
+              className="cursor-pointer text-gray-500 hover:text-indigo-600 transition"
             >
-              <CircularProgress />
-            </Box>
-          ) : (
-            currentRoom && (
-              <RoomForm
-                initialData={currentRoom}
-                onSubmit={handleUpdate}
-                loading={loading}
-              />
-            )
-          )}
-        </Paper>
-      </Container>
-    </Box>
+              Rooms
+            </Link>
+            <Typography color="text.primary" className="text-gray-800 font-medium">
+              Edit Room
+            </Typography>
+          </Breadcrumbs>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+            <Typography variant="h5" className="font-bold text-white">
+              Edit Room
+            </Typography>
+            <Typography variant="caption" className="text-indigo-100">
+              Update room details, amenities, and images
+            </Typography>
+          </div>
+
+          <div className="p-5 sm:p-6 md:p-8">
+            {loading && !currentRoom ? (
+              <div className="flex justify-center py-12">
+                <CircularProgress className="text-indigo-500" />
+              </div>
+            ) : (
+              currentRoom && (
+                <RoomForm
+                  initialData={currentRoom}
+                  onSubmit={handleUpdate}
+                  loading={loading}
+                />
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

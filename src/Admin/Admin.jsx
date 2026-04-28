@@ -18,6 +18,8 @@ import {
   Box,
   CssBaseline,
   Divider,
+  Badge,
+  Tooltip,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -31,6 +33,8 @@ import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import HotelIcon from "@mui/icons-material/Hotel";
 import LogoutIcon from "@mui/icons-material/Logout";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -58,56 +62,28 @@ import CreateRoomScreen from "../screens/CreateRoomScreen";
 import HotelRoomTable from "./component/HotelRoomTable";
 import EditRoomScreen from "../screens/EditRoomScreen";
 import RoomStatusChange from "./component/RoomStatusChange";
+import AdminPushNotificationPage from "./component/AdminPushNotificationPage";
+import AttendanceDashboard from "./component/AttendanceDashboard";
 
 /* Sidebar Width */
-const drawerWidth = 260;
+const drawerWidth = 280;
 
 /* Menu */
 const menu = [
-  {
-    name: "Dashboard",
-    path: "/admin/dashboard",
-    icon: <DashboardCustomizeIcon />,
-  },
+  { name: "Dashboard", path: "/admin/dashboard", icon: <DashboardCustomizeIcon /> },
   { name: "Analytics", path: "/admin/analytics", icon: <AnalyticsIcon /> },
   { name: "Hotels Management", path: "/admin/listings", icon: <HotelIcon /> },
-  {
-    name: "Hotel & Room Management",
-    path: "/admin/hotels/rooms",
-    icon: <HotelIcon />,
-  },
-  {
-    name: "Add New Hotel",
-    path: "/admin/listings/new",
-    icon: <AddShoppingCartIcon />,
-  },
+  { name: "Hotel & Room Management", path: "/admin/hotels/rooms", icon: <HotelIcon /> },
+  { name: "Add New Hotel", path: "/admin/listings/new", icon: <AddShoppingCartIcon /> },
   { name: "QR Code Generator", path: "/admin/rooms", icon: <QrCodeIcon /> },
-  {
-    name: "Booking Control",
-    path: "/admin/bookings",
-    icon: <BookmarkBorderIcon />,
-  },
-  {
-    name: "Customers Management",
-    path: "/admin/customers",
-    icon: <SupportAgentIcon />,
-  },
-  {
-    name: "Host Bookings",
-    path: "/admin/host/bookings",
-    icon: <BookmarkBorderIcon />,
-  },
-  {
-    name: "Admin Register",
-    path: "/admin/register",
-    icon: <AccountCircleIcon />,
-  },
+  { name: "Booking Control", path: "/admin/bookings", icon: <BookmarkBorderIcon /> },
+  { name: "Customers Management", path: "/admin/customers", icon: <SupportAgentIcon /> },
+  { name: "Host Bookings", path: "/admin/host/bookings", icon: <BookmarkBorderIcon /> },
+  { name: "Admin Register", path: "/admin/register", icon: <AccountCircleIcon /> },
   { name: "Live Room Status", path: "/admin/rooms/live", icon: <HotelIcon /> },
-  {
-    name: "Housekeeping",
-    path: "/admin/housekeeping",
-    icon: <CleaningServicesIcon />,
-  },
+  { name: "Housekeeping", path: "/admin/housekeeping", icon: <CleaningServicesIcon /> },
+  { name: "Push Notifications", path: "/admin/push-notifications", icon: <NotificationsIcon /> },
+  { name: "Attendance", path: "/admin/attendance", icon: <NotificationsIcon /> },
 ];
 
 const AdminLayout = () => {
@@ -126,7 +102,6 @@ const AdminLayout = () => {
     navigate("/login");
   };
 
-  /* SIDEBAR */
   const drawerContent = (
     <Box
       sx={{
@@ -134,25 +109,22 @@ const AdminLayout = () => {
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        background: "rgba(0,0,0,0.88)",
+        background: "linear-gradient(180deg, #0f172a 0%, #020617 100%)",
         color: "white",
       }}
     >
-      <Toolbar>
-        <Typography variant="h6" fontWeight="bold">
-          Smart Hotel Admin
-        </Typography>
+      <Toolbar sx={{ px: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <HotelIcon sx={{ color: "#4f46e5", fontSize: 28 }} />
+          <Typography variant="h6" fontWeight="bold" sx={{ background: "linear-gradient(135deg, #818cf8, #c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            SmartHotel Admin
+          </Typography>
+        </Box>
       </Toolbar>
 
       <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
 
-      <List
-        sx={{
-          flexGrow: 1,
-          overflowY: "auto",
-          px: 0.5,
-        }}
-      >
+      <List sx={{ flexGrow: 1, overflowY: "auto", px: 1, py: 2 }}>
         {menu.map((item) => (
           <ListItem key={item.name} disablePadding>
             <ListItemButton
@@ -164,14 +136,14 @@ const AdminLayout = () => {
                 mx: 1,
                 my: 0.5,
                 borderRadius: "12px",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.08)" },
+                transition: "all 0.3s",
+                "&:hover": { bgcolor: "rgba(79, 70, 229, 0.2)", transform: "translateX(4px)" },
               }}
             >
-              <ListItemIcon sx={{ color: "white", minWidth: 40 }}>
+              <ListItemIcon sx={{ color: "#818cf8", minWidth: 40 }}>
                 {item.icon}
               </ListItemIcon>
-
-              <ListItemText primary={item.name} />
+              <ListItemText primary={item.name} primaryTypographyProps={{ fontSize: "0.9rem" }} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -179,7 +151,7 @@ const AdminLayout = () => {
 
       <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
 
-      <List>
+      <List sx={{ p: 1 }}>
         <ListItem disablePadding>
           <ListItemButton
             onClick={logoutHandler}
@@ -187,14 +159,14 @@ const AdminLayout = () => {
               mx: 1,
               my: 1,
               borderRadius: "12px",
-              "&:hover": { bgcolor: "rgba(239,68,68,0.2)" },
+              transition: "all 0.3s",
+              "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)", transform: "translateX(4px)" },
             }}
           >
-            <ListItemIcon sx={{ color: "#fecaca", minWidth: 40 }}>
+            <ListItemIcon sx={{ color: "#f87171", minWidth: 40 }}>
               <LogoutIcon />
             </ListItemIcon>
-
-            <ListItemText primary="Logout" />
+            <ListItemText primary="Logout" primaryTypographyProps={{ fontSize: "0.9rem", sx: { color: "#f87171" } }} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -202,18 +174,9 @@ const AdminLayout = () => {
   );
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        minHeight: "100vh",
-        width: "100%",
-        overflowX: "hidden",
-        background: "linear-gradient(to bottom right,#020617,#000000,#111827)",
-      }}
-    >
+    <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", overflowX: "hidden" }}>
       <CssBaseline />
 
-      {/* TOPBAR */}
       <AppBar
         position="fixed"
         elevation={0}
@@ -222,32 +185,49 @@ const AdminLayout = () => {
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
           backdropFilter: "blur(20px)",
-          bgcolor: "rgba(0,0,0,0.7)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          bgcolor: "rgba(15, 23, 42, 0.85)",
+          borderBottom: "1px solid rgba(79, 70, 229, 0.3)",
           px: { xs: 1, sm: 2 },
         }}
       >
-        <Toolbar>
-          {!isDesktop && (
-            <IconButton onClick={handleDrawerToggle} color="inherit">
-              <MenuIcon />
-            </IconButton>
-          )}
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {!isDesktop && (
+              <IconButton onClick={handleDrawerToggle} color="inherit">
+                <MenuIcon />
+              </IconButton>
+            )}
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              sx={{
+                fontSize: { xs: "0.9rem", sm: "1rem", md: "1.25rem" },
+                background: "linear-gradient(135deg, #fff, #a5b4fc)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Admin Control Panel
+            </Typography>
+          </Box>
 
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            sx={{
-              fontSize: { xs: 14, sm: 16, md: 20 },
-              ml: 1,
-            }}
-          >
-            Smart Hotel Admin Dashboard
-          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Tooltip title="Notifications">
+              <IconButton color="inherit" onClick={() => navigate("/admin/notifications")}>
+                <Badge badgeContent={3} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Settings">
+              <IconButton color="inherit">
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Toolbar>
       </AppBar>
 
-      {/* SIDEBAR */}
       <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: 0 }}>
         {!isDesktop ? (
           <Drawer
@@ -255,9 +235,7 @@ const AdminLayout = () => {
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{ keepMounted: true }}
-            sx={{
-              "& .MuiDrawer-paper": { width: drawerWidth },
-            }}
+            sx={{ "& .MuiDrawer-paper": { width: drawerWidth, border: "none" } }}
           >
             {drawerContent}
           </Drawer>
@@ -270,7 +248,8 @@ const AdminLayout = () => {
                 width: drawerWidth,
                 height: "100vh",
                 overflow: "hidden",
-               borderRight: "1px solid rgba(255,255,255,0.1)",
+                borderRight: "1px solid rgba(79, 70, 229, 0.3)",
+                background: "linear-gradient(180deg, #0f172a 0%, #020617 100%)",
               },
             }}
           >
@@ -279,14 +258,15 @@ const AdminLayout = () => {
         )}
       </Box>
 
-      {/* MAIN */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           width: { md: `calc(100% - ${drawerWidth}px)` },
-          px: { xs: 1, sm: 2, md: 3 },
+          px: { xs: 1.5, sm: 2, md: 3 },
           py: { xs: 2, sm: 3 },
+          backgroundColor: "#f8fafc",
+          minHeight: "100vh",
         }}
       >
         <Toolbar />
@@ -294,11 +274,11 @@ const AdminLayout = () => {
         <Box
           sx={{
             borderRadius: { xs: 2, md: 3 },
-            bgcolor: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            p: { xs: 1.5, sm: 2.5, md: 4 },
+            bgcolor: "white",
+            border: "1px solid #e2e8f0",
+            p: { xs: 2, sm: 3, md: 4 },
             minHeight: "85vh",
-            boxShadow: "0 0 40px rgba(0,0,0,0.75)",
+            boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.05)",
           }}
         >
           <Routes>
@@ -316,15 +296,11 @@ const AdminLayout = () => {
             <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/listings/new" element={<CreateListingScreen />} />
             <Route path="/listing/edit/:id" element={<EditListingScreen />} />
-            <Route
-              path="/hotels/:listingId/rooms/create"
-              element={<CreateRoomScreen />}
-            />
+            <Route path="/hotels/:listingId/rooms/create" element={<CreateRoomScreen />} />
             <Route path="/rooms/:roomId/edit" element={<EditRoomScreen />} />
-            <Route
-              path="/rooms/:roomId/status"
-              element={<RoomStatusChange />}
-            />
+            <Route path="/rooms/:roomId/status" element={<RoomStatusChange />} />
+            <Route path="/push-notifications" element={<AdminPushNotificationPage />} />
+            <Route path="/attendance" element={<AttendanceDashboard />} />
           </Routes>
         </Box>
       </Box>

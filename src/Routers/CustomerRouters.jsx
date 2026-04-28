@@ -31,11 +31,9 @@ import HousekeepingScreen from "../screens/HousekeepingScreen";
 import QrScannerScreen from "../screens/QrScannerScreen";
 import StaffAttendance from "../screens/StaffAttendance";
 import QrGenerateScreen from "../screens/QrGenerateScreen";
-import QrCheckoutScreen from "../screens/QrCheckoutScreen";
 import HotelRoomsScreen from "../screens/HotelRoomsScreen.js";
 import NotificationPage from "../components/NotificationPage.js";
-
-
+import LoyaltyPage from "../components/LoyaltyPage.js";
 const CustomerRouters = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white overflow-x-hidden">
@@ -83,7 +81,7 @@ const CustomerRouters = () => {
               <Route path="/bookings/:bookingId" element={<BookingDetailsScreen />} />
               <Route path="/hotel/:hotelId/rooms" element={<HotelRoomsScreen />} />
               <Route path="/notifications" element={<NotificationPage />} />
-
+              <Route path="/loyalty" element={<LoyaltyPage />} />
               {/* HOST */}
               <Route path="/host" element={<HostScreen />} />
               <Route path="/host/bookings" element={<HostBookingsScreen />} />
@@ -97,7 +95,6 @@ const CustomerRouters = () => {
               {/* SMART HOTEL */}
               <Route path="/checkin" element={<QrVerifyScreen />} />
               <Route path="/scan/:id" element={<QrGenerateScreen />} />
-              <Route path="/checkout/:id" element={<QrCheckoutScreen />} />
               <Route path="/scanner" element={<QrScannerScreen />} />
               <Route path="/housekeeping" element={<HousekeepingScreen />} />
               <Route path="/staff-attendance" element={<StaffAttendance />} />
