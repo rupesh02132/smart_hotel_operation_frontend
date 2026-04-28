@@ -6,7 +6,6 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 import MyBookings from "./MyBookings";
 import React from "react";
-
 import {
   ConfirmationNumber,
   CalendarMonth,
@@ -24,6 +23,41 @@ import {
   ExpandMore,
   ExpandLess,
 } from "@mui/icons-material";
+
+const colorGradients = {
+  blue: "from-blue-500 to-cyan-500",
+  purple: "from-purple-500 to-pink-500",
+  green: "from-green-500 to-emerald-500",
+  amber: "from-amber-500 to-orange-500",
+};
+
+const hoverTextColor = {
+  blue: "group-hover:text-blue-400",
+  purple: "group-hover:text-purple-400",
+  green: "group-hover:text-green-400",
+  orange: "group-hover:text-orange-400",
+};
+
+const buttonGradientBg = {
+  blue: "from-blue-500/10 to-blue-600/5",
+  purple: "from-purple-500/10 to-purple-600/5",
+  green: "from-green-500/10 to-green-600/5",
+  orange: "from-orange-500/10 to-orange-600/5",
+};
+
+const hoverGradient = {
+  blue: "from-blue-500 to-blue-600",
+  purple: "from-purple-500 to-purple-600",
+  green: "from-green-500 to-green-600",
+  orange: "from-orange-500 to-orange-600",
+};
+
+const arrowColor = {
+  blue: "text-blue-400",
+  purple: "text-purple-400",
+  green: "text-green-400",
+  orange: "text-orange-400",
+};
 
 const UserDashboardScreen = () => {
   const dispatch = useDispatch();
@@ -43,8 +77,7 @@ const UserDashboardScreen = () => {
 
   useEffect(() => {
     dispatch(getMyBookings());
-    
-    // Set greeting based on time of day
+
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
@@ -59,41 +92,79 @@ const UserDashboardScreen = () => {
     });
   }, [booking, userId]);
 
-  const upcoming = userBookings.filter(
-    (b) => new Date(b.checkIn) > new Date()
-  );
-
-  const completed = userBookings.filter(
-    (b) => new Date(b.checkOut) < new Date()
-  );
-
-  const totalSpent = userBookings.reduce(
-    (sum, b) => sum + (b.totalPrice || 0),
-    0
-  );
+  const upcoming = userBookings.filter((b) => new Date(b.checkIn) > new Date());
+  const completed = userBookings.filter((b) => new Date(b.checkOut) < new Date());
+  const totalSpent = userBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
   const stats = [
-    { icon: <ConfirmationNumber />, title: "Total Stays", value: userBookings.length, color: "from-blue-500 to-cyan-500", bg: "from-blue-500/20 to-cyan-500/20" },
-    { icon: <CalendarMonth />, title: "Upcoming", value: upcoming.length, color: "from-purple-500 to-pink-500", bg: "from-purple-500/20 to-pink-500/20" },
-    { icon: <Hotel />, title: "Completed", value: completed.length, color: "from-green-500 to-emerald-500", bg: "from-green-500/20 to-emerald-500/20" },
-    { icon: <AccountBalanceWallet />, title: "Total Spent", value: `₹${totalSpent.toLocaleString()}`, color: "from-amber-500 to-orange-500", bg: "from-amber-500/20 to-orange-500/20" },
+    {
+      icon: <ConfirmationNumber />,
+      title: "Total Stays",
+      value: userBookings.length,
+      color: "blue",
+      bg: "from-blue-500/20 to-cyan-500/20",
+    },
+    {
+      icon: <CalendarMonth />,
+      title: "Upcoming",
+      value: upcoming.length,
+      color: "purple",
+      bg: "from-purple-500/20 to-pink-500/20",
+    },
+    {
+      icon: <Hotel />,
+      title: "Completed",
+      value: completed.length,
+      color: "green",
+      bg: "from-green-500/20 to-emerald-500/20",
+    },
+    {
+      icon: <AccountBalanceWallet />,
+      title: "Total Spent",
+      value: `₹${totalSpent.toLocaleString()}`,
+      color: "amber",
+      bg: "from-amber-500/20 to-orange-500/20",
+    },
   ];
 
   const quickActions = [
-    { icon: <TravelExplore />, label: "Explore Hotels", action: () => window.location.href = "/", color: "blue" },
-    { icon: <ConfirmationNumber />, label: "My Bookings", action: () => {
-      setExpandedSections(prev => ({ ...prev, recentBookings: !prev.recentBookings }));
-    }, color: "purple" },
-    { icon: <AccountCircle />, label: "Profile Settings", action: () => window.location.href = "/userProfile", color: "green" },
-    { icon: <Dashboard />, label: "Dashboard", action: () => window.location.href = "/dashboard", color: "orange" },
+    {
+      icon: <TravelExplore />,
+      label: "Explore Hotels",
+      action: () => (window.location.href = "/"),
+      color: "blue",
+    },
+    {
+      icon: <ConfirmationNumber />,
+      label: "My Bookings",
+      action: () => {
+        setExpandedSections((prev) => ({
+          ...prev,
+          recentBookings: !prev.recentBookings,
+        }));
+      },
+      color: "purple",
+    },
+    {
+      icon: <AccountCircle />,
+      label: "Profile Settings",
+      action: () => (window.location.href = "/userProfile"),
+      color: "green",
+    },
+    {
+      icon: <Dashboard />,
+      label: "Dashboard",
+      action: () => (window.location.href = "/dashboard"),
+      color: "orange",
+    },
   ];
 
   const recentBookings = userBookings.slice(0, 5);
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -137,7 +208,6 @@ const UserDashboardScreen = () => {
                   {firstName}
                 </span>
               </h1>
-
               <p className="text-slate-400 mt-3 sm:mt-4 text-xs sm:text-sm md:text-base max-w-xl leading-relaxed">
                 Manage your bookings, track trips, and explore new destinations with exclusive member benefits.
               </p>
@@ -173,11 +243,16 @@ const UserDashboardScreen = () => {
                 transition={{ duration: 0.2 }}
                 className={`relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-white/10 bg-gradient-to-br ${stat.bg} backdrop-blur-sm group`}
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                
+                <div
+                  className={`absolute inset-0 bg-gradient-to-r ${colorGradients[stat.color]} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                ></div>
                 <div className="relative z-10">
-                  <div className={`text-transparent bg-clip-text bg-gradient-to-r ${stat.color} mb-2 sm:mb-3`}>
-                    {React.cloneElement(stat.icon, { sx: { fontSize: { xs: 24, sm: 28, md: 32 } } })}
+                  <div
+                    className={`text-transparent bg-clip-text bg-gradient-to-r ${colorGradients[stat.color]} mb-2 sm:mb-3`}
+                  >
+                    {React.cloneElement(stat.icon, {
+                      sx: { fontSize: { xs: 24, sm: 28, md: 32 } },
+                    })}
                   </div>
                   <p className="text-xl sm:text-2xl md:text-3xl font-black text-white">
                     {stat.value}
@@ -186,7 +261,6 @@ const UserDashboardScreen = () => {
                     {stat.title}
                   </p>
                 </div>
-                
                 <div className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full bg-white/5 group-hover:scale-150 transition-transform duration-500"></div>
               </motion.div>
             ))}
@@ -200,7 +274,7 @@ const UserDashboardScreen = () => {
             className="rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 shadow-lg overflow-hidden"
           >
             <button
-              onClick={() => toggleSection('quickActions')}
+              onClick={() => toggleSection("quickActions")}
               className="w-full flex justify-between items-center p-4 sm:p-6 hover:bg-white/5 transition-colors"
             >
               <div className="flex items-center gap-2">
@@ -213,7 +287,7 @@ const UserDashboardScreen = () => {
                 {expandedSections.quickActions ? <ExpandLess /> : <ExpandMore />}
               </div>
             </button>
-            
+
             <AnimatePresence>
               {expandedSections.quickActions && (
                 <motion.div
@@ -231,20 +305,29 @@ const UserDashboardScreen = () => {
                           whileHover={{ scale: 1.05, y: -4 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={action.action}
-                          className={`group relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-white/10 bg-gradient-to-br from-${action.color}-500/10 to-${action.color}-600/5 backdrop-blur-sm cursor-pointer`}
+                          className={`group relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-white/10 bg-gradient-to-br ${buttonGradientBg[action.color]} backdrop-blur-sm cursor-pointer`}
                         >
-                          <div className={`absolute inset-0 bg-gradient-to-r from-${action.color}-500 to-${action.color}-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                          
+                          <div
+                            className={`absolute inset-0 bg-gradient-to-r ${hoverGradient[action.color]} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                          ></div>
                           <div className="relative z-10 text-center">
-                            <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br from-${action.color}-500/20 to-${action.color}-600/10 mb-2 group-hover:scale-110 transition-transform duration-300`}>
-                              {React.cloneElement(action.icon, { sx: { fontSize: { xs: 20, sm: 24 } } })}
+                            <div
+                              className={`inline-flex p-2 rounded-lg bg-gradient-to-br from-${action.color}-500/20 to-${action.color}-600/10 mb-2 group-hover:scale-110 transition-transform duration-300`}
+                            >
+                              {React.cloneElement(action.icon, {
+                                sx: { fontSize: { xs: 20, sm: 24 } },
+                              })}
                             </div>
-                            <p className="text-xs sm:text-sm font-semibold text-white group-hover:text-${action.color}-400 transition-colors">
+                            <p
+                              className={`text-xs sm:text-sm font-semibold text-white transition-colors ${hoverTextColor[action.color]}`}
+                            >
                               {action.label}
                             </p>
                           </div>
-                          
-                          <ArrowForward className={`absolute bottom-2 right-2 text-${action.color}-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0`} sx={{ fontSize: 14 }} />
+                          <ArrowForward
+                            className={`absolute bottom-2 right-2 ${arrowColor[action.color]} opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0`}
+                            sx={{ fontSize: 14 }}
+                          />
                         </motion.button>
                       ))}
                     </div>
@@ -257,7 +340,7 @@ const UserDashboardScreen = () => {
           {/* BOOKINGS SECTION - Collapsible */}
           <section className="rounded-2xl sm:rounded-3xl bg-white/[0.05] backdrop-blur-xl border border-white/10 shadow-lg overflow-hidden">
             <button
-              onClick={() => toggleSection('recentBookings')}
+              onClick={() => toggleSection("recentBookings")}
               className="w-full flex justify-between items-center p-4 sm:p-6 md:p-8 hover:bg-white/5 transition-colors"
             >
               <div>
@@ -275,7 +358,7 @@ const UserDashboardScreen = () => {
                 {expandedSections.recentBookings ? <ExpandLess /> : <ExpandMore />}
               </div>
             </button>
-            
+
             <AnimatePresence>
               {expandedSections.recentBookings && (
                 <motion.div
@@ -299,7 +382,7 @@ const UserDashboardScreen = () => {
                         </div>
                         <p className="text-slate-500 text-sm">No bookings yet</p>
                         <button
-                          onClick={() => window.location.href = "/"}
+                          onClick={() => (window.location.href = "/")}
                           className="inline-block mt-3 px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all"
                         >
                           Explore Hotels
@@ -323,7 +406,7 @@ const UserDashboardScreen = () => {
               className="rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 overflow-hidden"
             >
               <button
-                onClick={() => toggleSection('loyalty')}
+                onClick={() => toggleSection("loyalty")}
                 className="w-full flex justify-between items-center p-4 sm:p-5 hover:bg-white/5 transition-colors"
               >
                 <div className="flex items-center gap-3">
@@ -339,7 +422,7 @@ const UserDashboardScreen = () => {
                   {expandedSections.loyalty ? <ExpandLess /> : <ExpandMore />}
                 </div>
               </button>
-              
+
               <AnimatePresence>
                 {expandedSections.loyalty && (
                   <motion.div
@@ -366,7 +449,7 @@ const UserDashboardScreen = () => {
                           </div>
                         </div>
                         <button
-                          onClick={() => window.location.href = "/loyalty"}
+                          onClick={() => (window.location.href = "/loyalty")}
                           className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1"
                         >
                           Learn More <ChevronRight sx={{ fontSize: 12 }} />
